@@ -85,3 +85,15 @@ func (db *database) getAvatar(identhash string) image.Image {
 	}
 	return *db.avatars["empty"]
 }
+
+func (db *database) nameFromChanIdentHash(s string) string {
+	for _, channel := range db.Channels {
+		if channel.IdentHash == s {
+			if s == "" {
+				return "Anonymous"
+			}
+			return channel.Name
+		}
+	}
+	return "Unknown"
+}
