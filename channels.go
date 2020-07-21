@@ -1,6 +1,8 @@
 package main
 
 import (
+	"image/color"
+	"strconv"
 	"time"
 
 	"fyne.io/fyne/canvas"
@@ -95,12 +97,42 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 			subject := widget.NewLabel("Subject: " + currentMessage.Subject)
 			subject.Wrapping = fyne.TextWrapBreak
 			client.contentPane.Append(subject)
-			client.contentPane.Append(widget.NewLabel("==="))
+			client.contentPane.Append(canvas.NewLine(color.White))
 			if len(currentMessage.Raw.Page) > 0 {
-				body := widget.NewLabel(currentMessage.Raw.Page[0].Data)
-				body.Wrapping = fyne.TextWrapBreak
-				client.contentPane.Append(body)
+				for num, p := range currentMessage.Raw.Page[:1] {
+					if num >= 0 {
+						client.contentPane.Append(widget.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+						page := widget.NewLabel(p.Data)
+						page.Wrapping = fyne.TextWrapBreak
+						client.contentPane.Append(page)
+						client.contentPane.Append(canvas.NewLine(color.White))
+					}
+				}
 			}
+			if len(currentMessage.Raw.Attachment) > 0 {
+				for num, a := range currentMessage.Raw.Attachment {
+					if num >= 0 {
+						a1 := widget.NewLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name)
+						a1.Wrapping = fyne.TextWrapBreak
+						a2 := widget.NewLabel("Type: " + a.ContentType + " Description: " + a.Description)
+						a2.Wrapping = fyne.TextWrapBreak
+						client.contentPane.Append(a1)
+						client.contentPane.Append(a2)
+						adata := a.Data
+						image, err := renderImage(imageExtFromName(a.ContentType), adata)
+						if err != nil {
+							client.contentPane.Append(widget.NewLabel("Unable to display preview"))
+						} else {
+							i := canvas.NewImageFromImage(image)
+							i.FillMode = canvas.ImageFillContain
+							i.SetMinSize(fyne.NewSize(500, 500))
+							client.contentPane.Append(i)
+						}
+						client.contentPane.Append(canvas.NewLine(color.White))
+					}
+				}
+			}
+
 		}
 	}
 	return client.contentPane
