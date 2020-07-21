@@ -1,82 +1,37 @@
 package main
 
 import (
-	"image/color"
+	"github.com/kpetku/syndie-core/data"
 
 	"fyne.io/fyne"
-	"fyne.io/fyne/canvas"
-	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 )
 
-type ChannelWidget struct {
-	widget.BaseWidget
-	Name            string
-	Icon            *canvas.Image
-	Text            *widget.Label
-	SelectedChannel chan string
-	Highlight       bool
+type tappableLabel struct {
+	widget.Label
+	msg             *data.Message
+	chanID          string
+	selectedMessage chan int
+	selectedChannel chan string
 }
 
-type ChannelWidgetRenderer struct {
-	icon      *canvas.Image
-	text      *widget.Label
-	name      *widget.Label
-	highlight bool
-	objects   []fyne.CanvasObject
+func newTappableLabel(text string) *tappableLabel {
+	label := &tappableLabel{}
+	label.ExtendBaseWidget(label)
+	label.SetText(text)
+	return label
 }
 
-func (rw *ChannelWidget) Tapped(_ *fyne.PointEvent) {
-	rw.SelectedChannel <- rw.Text.Text
-}
-
-func (rw *ChannelWidget) TappedSecondary(_ *fyne.PointEvent) {
-}
-
-func (rw *ChannelWidget) CreateRenderer() fyne.WidgetRenderer {
-	rw.ExtendBaseWidget(rw)
-	n := widget.NewLabelWithStyle(rw.Name, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-
-	rwr := &ChannelWidgetRenderer{}
-	rwr.icon = rw.Icon
-	rwr.name = n
-	rwr.text = rw.Text
-	rwr.highlight = rw.Highlight
-	rwr.objects = []fyne.CanvasObject{rw.Icon, n, rw.Text}
-	return rwr
-}
-
-func (rwr *ChannelWidgetRenderer) Layout(size fyne.Size) {
-	rwr.name.Move(fyne.NewPos(0, 0))
-	rwr.text.Move(fyne.NewPos(0, 25))
-	// Move everything over 50 for the icon
-	rwr.name.Move(fyne.NewPos(50+rwr.name.Position().X, rwr.name.Position().Y))
-	rwr.text.Move(fyne.NewPos(50+rwr.text.Position().X, rwr.text.Position().Y))
-	// Display the icon
-	rwr.icon.Move(fyne.NewPos(0, 0))
-	rwr.icon.Resize(fyne.NewSize(50, 50))
-}
-
-func (rwr *ChannelWidgetRenderer) Objects() []fyne.CanvasObject {
-	return rwr.objects
-}
-
-func (rw *ChannelWidgetRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(100, 50)
-}
-
-func (rwr *ChannelWidgetRenderer) BackgroundColor() color.Color {
-	if rwr.highlight {
-		return theme.HoverColor()
+func (t *tappableLabel) Tapped(_ *fyne.PointEvent) {
+	if t.selectedMessage != nil {
+		t.selectedMessage <- t.msg.ID
+		close(t.selectedMessage)
 	}
-	return theme.BackgroundColor()
+	if t.selectedChannel != nil {
+		t.selectedChannel <- t.chanID
+		close(t.selectedChannel)
+	}
 }
 
-func (rw *ChannelWidgetRenderer) Destroy() {
-}
-
-func (rwr *ChannelWidgetRenderer) Refresh() {
-	rwr.objects = append(rwr.objects, rwr.icon)
-	rwr.objects = append(rwr.objects, rwr.name)
-	rwr.objects = append(rwr.objects, rwr.text)
+func (t *tappableLabel) TappedSecondary(_ *fyne.PointEvent) {
 }

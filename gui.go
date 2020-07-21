@@ -13,11 +13,12 @@ type GUI struct {
 
 	channelPane     *widget.Box
 	threadPane      *widget.Box
+	contentPane     *widget.Box
 	channelList     *widget.ScrollContainer
 	messageList     *widget.ScrollContainer
-	contentArea     *widget.Label
+	contentArea     *widget.ScrollContainer
 	selectedChannel string
-	selectedMessage string
+	selectedMessage int
 }
 
 func NewGUI() *GUI {
@@ -34,7 +35,6 @@ func (client *GUI) Start(path string) {
 	a := app.New()
 
 	client.window = a.NewWindow("Syndie GUI")
-	client.contentArea = widget.NewLabel("This is where the message content goes")
 
 	client.repaint()
 	client.window.ShowAndRun()
@@ -43,5 +43,6 @@ func (client *GUI) Start(path string) {
 func (client *GUI) repaint() {
 	client.channelList = widget.NewVScrollContainer(client.renderChannelList())
 	client.messageList = widget.NewVScrollContainer(client.renderThreadList())
-	client.window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(2), widget.NewHSplitContainer(client.channelList, client.messageList), client.contentArea))
+	client.contentArea = widget.NewVScrollContainer(client.renderContentArea())
+	client.window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
 }
