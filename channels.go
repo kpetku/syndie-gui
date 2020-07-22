@@ -84,7 +84,7 @@ func (client *GUI) renderThreadList() fyne.CanvasObject {
 func (client *GUI) renderContentArea() fyne.CanvasObject {
 	client.contentPane = widget.NewVBox()
 	if client.selectedChannel == "" {
-		client.contentPane.Append(widget.NewLabel("This is where the message content goes"))
+		return client.contentPane
 	} else {
 		if client.selectedMessage != 0 {
 			var currentMessage data.Message
@@ -94,45 +94,46 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 					break
 				}
 			}
-			subject := widget.NewLabel("Subject: " + currentMessage.Subject)
-			subject.Wrapping = fyne.TextWrapBreak
-			client.contentPane.Append(subject)
-			client.contentPane.Append(canvas.NewLine(color.White))
-			if len(currentMessage.Raw.Page) > 0 {
-				for num, p := range currentMessage.Raw.Page[:1] {
-					if num >= 0 {
-						client.contentPane.Append(widget.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
-						page := widget.NewLabel(p.Data)
-						page.Wrapping = fyne.TextWrapBreak
-						client.contentPane.Append(page)
-						client.contentPane.Append(canvas.NewLine(color.White))
-					}
-				}
-			}
-			if len(currentMessage.Raw.Attachment) > 0 {
-				for num, a := range currentMessage.Raw.Attachment {
-					if num >= 0 {
-						a1 := widget.NewLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name)
-						a1.Wrapping = fyne.TextWrapBreak
-						a2 := widget.NewLabel("Type: " + a.ContentType + " Description: " + a.Description)
-						a2.Wrapping = fyne.TextWrapBreak
-						client.contentPane.Append(a1)
-						client.contentPane.Append(a2)
-						adata := a.Data
-						image, err := renderImage(imageExtFromName(a.ContentType), adata)
-						if err != nil {
-							client.contentPane.Append(widget.NewLabel("Unable to display preview"))
-						} else {
-							i := canvas.NewImageFromImage(image)
-							i.FillMode = canvas.ImageFillContain
-							i.SetMinSize(fyne.NewSize(500, 500))
-							client.contentPane.Append(i)
+			if currentMessage.Subject != "" {
+				subject := widget.NewLabel("Subject: " + currentMessage.Subject)
+				subject.Wrapping = fyne.TextWrapBreak
+				client.contentPane.Append(subject)
+				client.contentPane.Append(canvas.NewLine(color.White))
+				if len(currentMessage.Raw.Page) > 0 {
+					for num, p := range currentMessage.Raw.Page[:1] {
+						if num >= 0 {
+							client.contentPane.Append(widget.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+							page := widget.NewLabel(p.Data)
+							page.Wrapping = fyne.TextWrapBreak
+							client.contentPane.Append(page)
+							client.contentPane.Append(canvas.NewLine(color.White))
 						}
-						client.contentPane.Append(canvas.NewLine(color.White))
+					}
+				}
+				if len(currentMessage.Raw.Attachment) > 0 {
+					for num, a := range currentMessage.Raw.Attachment {
+						if num >= 0 {
+							a1 := widget.NewLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name)
+							a1.Wrapping = fyne.TextWrapBreak
+							a2 := widget.NewLabel("Type: " + a.ContentType + " Description: " + a.Description)
+							a2.Wrapping = fyne.TextWrapBreak
+							client.contentPane.Append(a1)
+							client.contentPane.Append(a2)
+							adata := a.Data
+							image, err := renderImage(imageExtFromName(a.ContentType), adata)
+							if err != nil {
+								client.contentPane.Append(widget.NewLabel("Unable to display preview"))
+							} else {
+								i := canvas.NewImageFromImage(image)
+								i.FillMode = canvas.ImageFillContain
+								i.SetMinSize(fyne.NewSize(500, 500))
+								client.contentPane.Append(i)
+							}
+							client.contentPane.Append(canvas.NewLine(color.White))
+						}
 					}
 				}
 			}
-
 		}
 	}
 	return client.contentPane

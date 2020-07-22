@@ -37,6 +37,7 @@ func (client *GUI) Start(path string) {
 	client.window = a.NewWindow("Syndie GUI")
 
 	client.repaint()
+	client.window.Resize(fyne.NewSize(800, 600))
 	client.window.ShowAndRun()
 }
 
