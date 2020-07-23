@@ -55,7 +55,10 @@ func (client *GUI) repaint() {
 
 func (client *GUI) loadMainMenu() {
 	main := fyne.NewMenu("File",
-		fyne.NewMenuItem("Fetch", func() { client.fetchFromArchiveServer() }),
+		fyne.NewMenuItem("Fetch", func() {
+			client.fetchFromArchiveServer()
+			client.repaint()
+		}),
 	)
 	client.window.SetMainMenu(fyne.NewMainMenu(main))
 }
@@ -75,6 +78,5 @@ func (client *GUI) fetch(fetch bool) {
 		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
 		f.RemoteFetch()
 		client.db.reload()
-		client.repaint()
 	}
 }

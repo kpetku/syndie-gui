@@ -34,6 +34,7 @@ func (db *database) openDB(path string) error {
 }
 
 func (db *database) loadChannels() {
+	db.Channels = []data.Channel{}
 	data.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("channels"))
 		b.ForEach(func(k, v []byte) error {
@@ -49,6 +50,7 @@ func (db *database) loadChannels() {
 }
 
 func (db *database) loadMessages() {
+	db.Messages = []data.Message{}
 	data.DB.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("messages"))
 		b.ForEach(func(k, v []byte) error {
@@ -98,6 +100,7 @@ func (db *database) nameFromChanIdentHash(s string) string {
 	return "Unknown"
 }
 func (db *database) reload() {
+	db.chanList = make(map[string][]data.Message)
 	db.loadChannels()
 	db.loadMessages()
 	db.loadAvatars()
