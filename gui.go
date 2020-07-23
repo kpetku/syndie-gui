@@ -34,9 +34,7 @@ func NewGUI() *GUI {
 func (client *GUI) Start(path string) {
 	client.db = NewDatabase()
 	client.db.openDB(path)
-	client.db.loadChannels()
-	client.db.loadMessages()
-	client.db.loadAvatars()
+	client.db.reload()
 
 	a := app.New()
 
@@ -76,9 +74,7 @@ func (client *GUI) fetch(fetch bool) {
 	if fetch {
 		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
 		f.RemoteFetch()
-		client.db.loadChannels()
-		client.db.loadMessages()
-		client.db.loadAvatars()
+		client.db.reload()
 		client.repaint()
 	}
 }

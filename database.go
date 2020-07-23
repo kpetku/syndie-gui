@@ -97,3 +97,8 @@ func (db *database) nameFromChanIdentHash(s string) string {
 	}
 	return "Unknown"
 }
+func (db *database) reload() {
+	db.loadChannels()
+	db.loadMessages()
+	db.loadAvatars()
+}
