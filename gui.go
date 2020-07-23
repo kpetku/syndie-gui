@@ -1,10 +1,15 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
+
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
+	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
+	"github.com/kpetku/syndie-core/fetcher"
 )
 
 type GUI struct {
@@ -35,6 +40,7 @@ func (client *GUI) Start(path string) {
 	a := app.New()
 
 	client.window = a.NewWindow("Syndie GUI")
+	client.loadMainMenu()
 
 	client.repaint()
 	client.window.Resize(fyne.NewSize(800, 600))
@@ -46,4 +52,32 @@ func (client *GUI) repaint() {
 	client.messageList = widget.NewVScrollContainer(client.renderThreadList())
 	client.contentArea = widget.NewVScrollContainer(client.renderContentArea())
 	client.window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
+}
+
+func (client *GUI) loadMainMenu() {
+	main := fyne.NewMenu("File",
+		fyne.NewMenuItem("Fetch", func() { client.fetchFromArchiveServer() }),
+	)
+	client.window.SetMainMenu(fyne.NewMainMenu(main))
+}
+
+func (client *GUI) fetchFromArchiveServer() {
+	content := widget.NewLabel("Press Fetch to sync from http://localhost:8080/")
+	dialog.NewCustomConfirm("Fetch", "Fetch", "Cancel", content, client.fetch, client.window)
+}
+
+func (client *GUI) fetch(fetch bool) {
+	dir, err := ioutil.TempDir("", "syndie")
+	if err != nil {
+		log.Fatalf("Unable to create a temporary directory: %s", err)
+	}
+	if fetch {
+		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
+		f.GetIndex()
+		f.Fetch()
+		client.db.loadChannels()
+		client.db.loadMessages()
+		client.db.loadAvatars()
+		client.repaint()
+	}
 }
