@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
@@ -71,10 +72,10 @@ func (client *GUI) fetch(fetch bool) {
 	if err != nil {
 		log.Fatalf("Unable to create a temporary directory: %s", err)
 	}
+	defer os.RemoveAll(dir)
 	if fetch {
 		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
-		f.GetIndex()
-		f.Fetch()
+		f.RemoteFetch()
 		client.db.loadChannels()
 		client.db.loadMessages()
 		client.db.loadAvatars()
