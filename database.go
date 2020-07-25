@@ -20,7 +20,7 @@ type database struct {
 	Messages []data.Message
 }
 
-func NewDatabase() *database {
+func newDatabase() *database {
 	return new(database)
 }
 

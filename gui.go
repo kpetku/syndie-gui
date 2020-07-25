@@ -13,6 +13,7 @@ import (
 	"github.com/kpetku/syndie-core/fetcher"
 )
 
+// GUI contains various GUI configuration options
 type GUI struct {
 	db     *database
 	window fyne.Window
@@ -30,12 +31,14 @@ type GUI struct {
 	selectedMessage int
 }
 
+// NewGUI creates a new GUI
 func NewGUI() *GUI {
 	return new(GUI)
 }
 
+// Start launches a new syndie-gui application
 func (client *GUI) Start(path string) {
-	client.db = NewDatabase()
+	client.db = newDatabase()
 	client.db.openDB(path)
 	client.db.reload()
 
