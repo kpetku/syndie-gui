@@ -17,13 +17,16 @@ type GUI struct {
 	db     *database
 	window fyne.Window
 
-	channelPane     *widget.Box
-	threadPane      *widget.Box
-	contentPane     *widget.Box
-	channelList     *widget.ScrollContainer
-	messageList     *widget.ScrollContainer
-	contentArea     *widget.ScrollContainer
+	channelPane *widget.Box
+	threadPane  *widget.Box
+	contentPane *widget.Box
+	channelList *widget.ScrollContainer
+	messageList *widget.ScrollContainer
+	contentArea *widget.ScrollContainer
+
+	pagination      int
 	selectedChannel string
+	channelNeedle   int
 	selectedMessage int
 }
 
@@ -40,6 +43,7 @@ func (client *GUI) Start(path string) {
 
 	client.window = a.NewWindow("Syndie GUI")
 	client.loadMainMenu()
+	client.applyOptions()
 
 	client.repaint()
 	client.window.Resize(fyne.NewSize(800, 600))
@@ -48,7 +52,7 @@ func (client *GUI) Start(path string) {
 
 func (client *GUI) repaint() {
 	client.channelList = widget.NewVScrollContainer(client.renderChannelList())
-	client.messageList = widget.NewVScrollContainer(client.renderThreadList())
+	client.messageList = widget.NewVScrollContainer(client.renderThreadList(client.channelNeedle))
 	client.contentArea = widget.NewVScrollContainer(client.renderContentArea())
 	client.window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
 }
@@ -79,4 +83,8 @@ func (client *GUI) fetch(fetch bool) {
 		f.RemoteFetch()
 		client.db.reload()
 	}
+}
+
+func (client *GUI) applyOptions() {
+	client.pagination = 25
 }

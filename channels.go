@@ -36,6 +36,7 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 			for click := range rw.selectedChannel {
 				c := click
 				client.selectedChannel = c
+				client.channelNeedle = 0
 				break
 			}
 			go client.repaint()
@@ -48,34 +49,62 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 	return client.channelPane
 }
 
-func (client *GUI) renderThreadList() fyne.CanvasObject {
+func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 	client.threadPane = widget.NewVBox()
 	if client.selectedChannel == "" {
 		client.threadPane.Append(widget.NewLabel("Select a channel from the menu to the left to get started"))
 	} else {
-		for _, msg := range client.db.chanList[client.selectedChannel] {
-			currentMessage := msg
-			// TODO: Move this into it's own custom widget
-			first := new(tappableLabel)
-			first.msg = &currentMessage
-			first.SetText(msg.Subject)
+		for num, msg := range client.db.chanList[client.selectedChannel] {
+			if num <= client.channelNeedle || num < client.pagination {
+				currentMessage := msg
+				// TODO: Move this into it's own custom widget
+				first := new(tappableLabel)
+				first.msg = &currentMessage
+				first.SetText(msg.Subject)
 
-			first.selectedMessage = make(chan int)
-			go func() {
-				for click := range first.selectedMessage {
-					c := click
-					client.selectedMessage = c
-					break
+				first.selectedMessage = make(chan int)
+				go func() {
+					for click := range first.selectedMessage {
+						c := click
+						client.selectedMessage = c
+						break
+					}
+					go client.repaint()
+				}()
+				client.threadPane.Append(first)
+
+				second := new(tappableLabel)
+				second.msg = &currentMessage
+				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
+				second.SetText("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
+				client.threadPane.Append(second)
+			}
+			if num == client.channelNeedle {
+				if num <= client.pagination {
+					continue
 				}
-				go client.repaint()
-			}()
-			client.threadPane.Append(first)
-
-			second := new(tappableLabel)
-			second.msg = &currentMessage
-			date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-			second.SetText("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
-			client.threadPane.Append(second)
+				client.threadPane.Append(widget.NewButton("Show more messages", func() {
+					client.channelNeedle = needle + client.pagination
+					client.renderThreadList(needle + client.pagination)
+					client.repaint()
+				}))
+			}
+		}
+		if needle == client.channelNeedle {
+			if len(client.db.chanList[client.selectedChannel])-1 <= client.pagination {
+				return client.threadPane
+			}
+			if needle <= client.pagination {
+				client.threadPane.Append(widget.NewButton("Show more messages", func() {
+					if client.channelNeedle == needle {
+						client.channelNeedle = client.pagination + (client.pagination - 1)
+					} else {
+						client.channelNeedle = needle + client.pagination
+					}
+					client.renderThreadList(needle + client.pagination)
+					client.repaint()
+				}))
+			}
 		}
 	}
 	return client.threadPane
