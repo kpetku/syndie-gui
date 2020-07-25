@@ -6,7 +6,6 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
-	"path/filepath"
 	"strings"
 )
 
@@ -27,13 +26,15 @@ func renderImage(ext string, data []byte) (image.Image, error) {
 }
 
 func imageExtFromName(s string) string {
-	switch filepath.Ext(strings.Replace(s, "/", ".", 0)) {
-	case "gif":
-		return "gif"
-	case "png":
-		return "png"
-	case "jpg", "jpeg":
-		return "jpeg"
+	if strings.Contains(s, "/") {
+		switch strings.Split(s, "/")[1] {
+		case "gif":
+			return "gif"
+		case "png":
+			return "png"
+		case "jpg", "jpeg":
+			return "jpeg"
+		}
 	}
 	return ""
 }
