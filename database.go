@@ -91,7 +91,7 @@ func (db *database) getAvatar(identhash string) image.Image {
 func (db *database) nameFromChanIdentHash(s string) string {
 	for _, channel := range db.Channels {
 		if channel.IdentHash == s {
-			if s == "" {
+			if channel.Name == "" {
 				return "Anonymous"
 			}
 			return channel.Name
