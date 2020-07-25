@@ -19,6 +19,7 @@ func newTappableLabel(text string) *tappableLabel {
 	label := &tappableLabel{}
 	label.ExtendBaseWidget(label)
 	label.SetText(text)
+	label.Wrapping = fyne.TextWrapBreak
 	return label
 }
 
@@ -34,4 +35,10 @@ func (t *tappableLabel) Tapped(_ *fyne.PointEvent) {
 }
 
 func (t *tappableLabel) TappedSecondary(_ *fyne.PointEvent) {
+}
+
+func newLabel(s string) *widget.Label {
+	w := widget.NewLabel(s)
+	w.Wrapping = fyne.TextWrapBreak
+	return w
 }

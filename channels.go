@@ -124,17 +124,13 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 				}
 			}
 			if currentMessage.Subject != "" {
-				subject := widget.NewLabel("Subject: " + currentMessage.Subject)
-				subject.Wrapping = fyne.TextWrapBreak
-				client.contentPane.Append(subject)
+				client.contentPane.Append(newLabel("Subject: " + currentMessage.Subject))
 				client.contentPane.Append(canvas.NewLine(color.White))
 				if len(currentMessage.Raw.Page) > 0 {
 					for num, p := range currentMessage.Raw.Page[:1] {
 						if num >= 0 {
-							client.contentPane.Append(widget.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
-							page := widget.NewLabel(p.Data)
-							page.Wrapping = fyne.TextWrapBreak
-							client.contentPane.Append(page)
+							client.contentPane.Append(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+							client.contentPane.Append(newLabel(p.Data))
 							client.contentPane.Append(canvas.NewLine(color.White))
 						}
 					}
@@ -142,12 +138,8 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 				if len(currentMessage.Raw.Attachment) > 0 {
 					for num, a := range currentMessage.Raw.Attachment {
 						if num >= 0 {
-							a1 := widget.NewLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name)
-							a1.Wrapping = fyne.TextWrapBreak
-							a2 := widget.NewLabel("Type: " + a.ContentType + " Description: " + a.Description)
-							a2.Wrapping = fyne.TextWrapBreak
-							client.contentPane.Append(a1)
-							client.contentPane.Append(a2)
+							client.contentPane.Append(newLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name))
+							client.contentPane.Append(newLabel("Type: " + a.ContentType + " Description: " + a.Description))
 							adata := a.Data
 							image, err := renderImage(imageExtFromName(a.ContentType), adata)
 							if err != nil {
