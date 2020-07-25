@@ -155,7 +155,7 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 							} else {
 								i := canvas.NewImageFromImage(image)
 								i.FillMode = canvas.ImageFillContain
-								i.SetMinSize(fyne.NewSize(500, 500))
+								i.SetMinSize(fyne.NewSize(fyne.Min(image.Bounds().Dx(), client.contentArea.Size().Width), image.Bounds().Dy()))
 								client.contentPane.Append(i)
 							}
 							client.contentPane.Append(canvas.NewLine(color.White))
