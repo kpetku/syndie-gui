@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
@@ -25,10 +26,12 @@ type GUI struct {
 	messageList *widget.ScrollContainer
 	contentArea *widget.ScrollContainer
 
-	pagination      int
-	selectedChannel string
-	channelNeedle   int
-	selectedMessage int
+	pagination           int
+	selectedChannel      string
+	channelNeedle        int
+	selectedMessage      int
+	selectedFetchArchive *widget.Entry
+	selectedFetchMethod  string
 }
 
 // NewGUI creates a new GUI
@@ -63,7 +66,12 @@ func (client *GUI) repaint() {
 
 func (client *GUI) loadMainMenu() {
 	main := fyne.NewMenu("File",
-		fyne.NewMenuItem("Fetch", func() {
+		fyne.NewMenuItem("Fetch from URL", func() {
+			client.selectedFetchMethod = "URL"
+			client.fetchFromArchiveServer()
+		}),
+		fyne.NewMenuItem("Fetch from directory", func() {
+			client.selectedFetchMethod = "directory"
 			client.fetchFromArchiveServer()
 		}),
 	)
@@ -71,24 +79,50 @@ func (client *GUI) loadMainMenu() {
 }
 
 func (client *GUI) fetchFromArchiveServer() {
-	content := widget.NewLabel("Press Fetch to sync from http://localhost:8080/")
+	content := widget.NewVBox()
+	client.selectedFetchArchive = widget.NewEntry()
+	content.Append(widget.NewLabel("Press fetch to pull messages from the " + client.selectedFetchMethod + " below"))
+	if client.selectedFetchMethod == "URL" {
+		client.selectedFetchArchive.SetPlaceHolder("http://localhost:8080/")
+	}
+	if client.selectedFetchMethod == "directory" {
+		client.selectedFetchArchive.SetPlaceHolder("~/.syndie/archive")
+	}
 	dialog.NewCustomConfirm("Fetch", "Fetch", "Cancel", content, client.fetch, client.window)
+	content.Append(client.selectedFetchArchive)
 }
 
 func (client *GUI) fetch(fetch bool) {
+	if client.selectedFetchArchive.Text == "" {
+		client.selectedFetchArchive.Text = client.selectedFetchArchive.PlaceHolder
+	}
+	if client.selectedFetchMethod == "URL" {
+		client.selectedFetchArchive.Text = "http://" + strings.TrimLeft(client.selectedFetchArchive.Text, "http://")
+	}
 	dir, err := ioutil.TempDir("", "syndie")
 	if err != nil {
 		log.Fatalf("Unable to create a temporary directory: %s", err)
 	}
 	defer os.RemoveAll(dir)
 	if fetch {
-		progress := dialog.NewProgressInfinite("Fetching", "Fetching from http://localhost:8080/", client.window)
-		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
+		progress := dialog.NewProgressInfinite("Fetching", "Fetching from "+client.selectedFetchArchive.Text, client.window)
+		f := fetcher.New(client.selectedFetchArchive.Text, dir, 60, 50)
 		progress.Show()
-		err := f.RemoteFetch()
-		if err != nil {
-			progress.Hide()
-			dialog.NewError(err, client.window)
+		if client.selectedFetchMethod == "URL" {
+			err := f.RemoteFetch()
+			if err != nil {
+				progress.Hide()
+				dialog.NewError(err, client.window)
+			}
+		}
+		if client.selectedFetchMethod == "directory" {
+			client.selectedFetchArchive.Text = strings.TrimRight(client.selectedFetchArchive.Text, "/") + "/"
+			err := f.LocalDir(client.selectedFetchArchive.Text)
+			log.Printf("Checking: %s", client.selectedFetchArchive.Text)
+			if err != nil {
+				progress.Hide()
+				dialog.NewError(err, client.window)
+			}
 		}
 		client.db.reload()
 		progress.Hide()
