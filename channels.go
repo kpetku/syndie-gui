@@ -28,7 +28,7 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 		icon.SetMinSize(fyne.NewSize(32, 32))
 
 		rw := new(tappableLabel)
-		rw.SetText(channel.Name + " " + shortIdent(channel.IdentHash))
+		rw.SetText(channel.Name + " " + shortIdent(channel.IdentHash) + " (?/" + strconv.Itoa(len(client.db.chanList[channel.IdentHash])) + ")")
 		rw.chanID = channel.IdentHash
 
 		rw.selectedChannel = make(chan string)
