@@ -64,7 +64,6 @@ func (client *GUI) loadMainMenu() {
 	main := fyne.NewMenu("File",
 		fyne.NewMenuItem("Fetch", func() {
 			client.fetchFromArchiveServer()
-			client.repaint()
 		}),
 	)
 	client.window.SetMainMenu(fyne.NewMainMenu(main))
@@ -82,9 +81,17 @@ func (client *GUI) fetch(fetch bool) {
 	}
 	defer os.RemoveAll(dir)
 	if fetch {
+		progress := dialog.NewProgressInfinite("Fetching", "Fetching from http://localhost:8080/", client.window)
 		f := fetcher.New("http://localhost:8080/", dir, 60, 50)
-		f.RemoteFetch()
+		progress.Show()
+		err := f.RemoteFetch()
+		if err != nil {
+			progress.Hide()
+			dialog.NewError(err, client.window)
+		}
 		client.db.reload()
+		progress.Hide()
+		client.repaint()
 	}
 }
 
