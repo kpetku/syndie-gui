@@ -38,8 +38,9 @@ func NewGUI() *GUI {
 
 // Start launches a new syndie-gui application
 func (client *GUI) Start(path string) {
+	sanityCheckStartupDir(path)
 	client.db = newDatabase()
-	client.db.openDB(path)
+	client.db.openDB(path + "/db/bolt.db")
 	client.db.reload()
 
 	a := app.New()
@@ -97,4 +98,16 @@ func (client *GUI) fetch(fetch bool) {
 
 func (client *GUI) applyOptions() {
 	client.pagination = 25
+}
+
+func sanityCheckStartupDir(path string) {
+	var err error
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		os.Mkdir(path, 0777)
+		_, err = os.Stat(path + "/db/")
+		if os.IsNotExist(err) {
+			os.Mkdir(path+"/db/", 0777)
+		}
+	}
 }
