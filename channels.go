@@ -58,21 +58,12 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 			if num <= client.channelNeedle || num < client.pagination {
 				currentMessage := msg
 				// TODO: Move this into it's own custom widget
-				first := new(tappableLabel)
-				first.msg = &currentMessage
-				first.SetText(msg.Subject)
-
-				first.selectedMessage = make(chan int)
-				go func() {
-					for click := range first.selectedMessage {
-						c := click
-						client.selectedMessage = c
-						break
-					}
-					go client.repaint()
-				}()
+				first := widget.NewButton(msg.Subject, func() {
+					client.selectedMessage = currentMessage.ID
+					client.repaint()
+				})
+				first.Alignment = widget.ButtonAlignLeading
 				client.threadPane.Append(first)
-
 				second := new(tappableLabel)
 				second.msg = &currentMessage
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
