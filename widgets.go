@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/kpetku/syndie-core/data"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/widget"
 )
 
 type tappableLabel struct {

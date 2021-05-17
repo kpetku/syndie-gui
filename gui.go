@@ -6,11 +6,12 @@ import (
 	"os"
 	"strings"
 
-	"fyne.io/fyne"
-	"fyne.io/fyne/app"
-	"fyne.io/fyne/dialog"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 	"github.com/kpetku/syndie-core/fetcher"
 )
 
@@ -19,12 +20,12 @@ type GUI struct {
 	db     *database
 	window fyne.Window
 
-	channelPane *widget.Box
-	threadPane  *widget.Box
-	contentPane *widget.Box
-	channelList *widget.ScrollContainer
-	messageList *widget.ScrollContainer
-	contentArea *widget.ScrollContainer
+	channelPane *fyne.Container
+	threadPane  *fyne.Container
+	contentPane *fyne.Container
+	channelList *container.Scroll
+	messageList *container.Scroll
+	contentArea *container.Scroll
 
 	pagination           int
 	selectedChannel      string
@@ -58,10 +59,10 @@ func (client *GUI) Start(path string) {
 }
 
 func (client *GUI) repaint() {
-	client.channelList = widget.NewVScrollContainer(client.renderChannelList())
-	client.messageList = widget.NewVScrollContainer(client.renderThreadList(client.channelNeedle))
-	client.contentArea = widget.NewVScrollContainer(client.renderContentArea())
-	client.window.SetContent(fyne.NewContainerWithLayout(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
+	client.channelList = container.NewVScroll(client.renderChannelList())
+	client.messageList = container.NewVScroll(client.renderThreadList(client.channelNeedle))
+	client.contentArea = container.NewVScroll(client.renderContentArea())
+	client.window.SetContent(container.New(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
 }
 
 func (client *GUI) loadMainMenu() {
@@ -79,9 +80,9 @@ func (client *GUI) loadMainMenu() {
 }
 
 func (client *GUI) fetchFromArchiveServer() {
-	content := widget.NewVBox()
+	content := container.NewVBox()
 	client.selectedFetchArchive = widget.NewEntry()
-	content.Append(widget.NewLabel("Press fetch to pull messages from the " + client.selectedFetchMethod + " below"))
+	content.Add(widget.NewLabel("Press fetch to pull messages from the " + client.selectedFetchMethod + " below"))
 	if client.selectedFetchMethod == "URL" {
 		client.selectedFetchArchive.SetPlaceHolder("http://localhost:8080/")
 	}
@@ -89,7 +90,7 @@ func (client *GUI) fetchFromArchiveServer() {
 		client.selectedFetchArchive.SetPlaceHolder("~/.syndie/archive")
 	}
 	dialog.NewCustomConfirm("Fetch", "Fetch", "Cancel", content, client.fetch, client.window)
-	content.Append(client.selectedFetchArchive)
+	content.Add(client.selectedFetchArchive)
 }
 
 func (client *GUI) fetch(fetch bool) {
