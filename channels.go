@@ -1,7 +1,6 @@
 package main
 
 import (
-	"image/color"
 	"strconv"
 	"time"
 
@@ -125,13 +124,13 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 		}
 		if currentMessage.Subject != "" {
 			client.contentPane.Add(newLabel("Subject: " + currentMessage.Subject))
-			client.contentPane.Add(canvas.NewLine(color.White))
+			client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
 			if len(currentMessage.Raw.Page) > 0 {
 				for num, p := range currentMessage.Raw.Page[:1] {
 					if num >= 0 {
 						client.contentPane.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
 						client.contentPane.Add(newLabel(p.Data))
-						client.contentPane.Add(canvas.NewLine(color.White))
+						client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
 					}
 				}
 			}
@@ -150,7 +149,7 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 							i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
 							client.contentPane.Add(i)
 						}
-						client.contentPane.Add(canvas.NewLine(color.White))
+						client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
 					}
 				}
 			}
