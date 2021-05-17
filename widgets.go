@@ -4,6 +4,8 @@ import (
 	"github.com/kpetku/syndie-core/data"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -41,4 +43,14 @@ func newLabel(s string) *widget.Label {
 	w := widget.NewLabel(s)
 	w.Wrapping = fyne.TextWrapBreak
 	return w
+}
+
+func newLabelWithImage(icon *canvas.Image, label *widget.Label) *fyne.Container {
+	hbox := container.NewHBox()
+
+	icon.SetMinSize(fyne.NewSize(32, 32))
+	icon.FillMode = canvas.ImageFillContain
+	hbox.Add(icon)
+	hbox.Add(label)
+	return hbox
 }

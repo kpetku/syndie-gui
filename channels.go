@@ -73,9 +73,9 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 				first.Alignment = fyne.TextAlignLeading
 				client.threadPane.Add(first)
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-				second := newLabel("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
+				second := widget.NewLabel("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
 				second.TextStyle = fyne.TextStyle{Monospace: true}
-				client.threadPane.Add(second)
+				client.threadPane.Add(newLabelWithImage(canvas.NewImageFromImage(client.db.getAvatar(msg.Author)), second))
 				client.threadPane.Add(canvas.NewLine(theme.ShadowColor()))
 			}
 			if num == client.channelNeedle {
