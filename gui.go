@@ -89,8 +89,9 @@ func (client *GUI) fetchFromArchiveServer() {
 	if client.selectedFetchMethod == "directory" {
 		client.selectedFetchArchive.SetPlaceHolder("~/.syndie/archive")
 	}
-	dialog.NewCustomConfirm("Fetch", "Fetch", "Cancel", content, client.fetch, client.window)
+	cc := dialog.NewCustomConfirm("Fetch", "Fetch", "Cancel", content, client.fetch, client.window)
 	content.Add(client.selectedFetchArchive)
+	cc.Show()
 }
 
 func (client *GUI) fetch(fetch bool) {
@@ -117,7 +118,8 @@ func (client *GUI) fetch(fetch bool) {
 			err := f.RemoteFetch()
 			if err != nil {
 				progress.Hide()
-				dialog.NewError(err, client.window)
+				de := dialog.NewError(err, client.window)
+				de.Show()
 			}
 		}
 		if client.selectedFetchMethod == "directory" {
@@ -126,7 +128,8 @@ func (client *GUI) fetch(fetch bool) {
 			log.Printf("Checking: %s", client.selectedFetchArchive.Text)
 			if err != nil {
 				progress.Hide()
-				dialog.NewError(err, client.window)
+				de := dialog.NewError(err, client.window)
+				de.Show()
 			}
 		}
 		client.db.reload()
