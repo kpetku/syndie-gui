@@ -106,7 +106,11 @@ func (client *GUI) fetch(fetch bool) {
 	}
 	defer os.RemoveAll(dir)
 	if fetch {
-		progress := dialog.NewProgressInfinite("Fetching", "Fetching from "+client.selectedFetchArchive.Text, client.window)
+		hbox := container.NewHBox()
+		pb := widget.NewProgressBarInfinite()
+		hbox.Add(widget.NewLabel("Fetching from " + client.selectedFetchArchive.Text))
+		hbox.Add(pb)
+		progress := dialog.NewCustom("Fetching", "Cancel fetch", hbox, client.window)
 		f := fetcher.New(client.selectedFetchArchive.Text, dir, 60, 50)
 		progress.Show()
 		if client.selectedFetchMethod == "URL" {
