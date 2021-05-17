@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/kpetku/syndie-core/data"
@@ -58,18 +59,25 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 		for num, msg := range client.db.chanList[client.selectedChannel] {
 			if num <= client.channelNeedle || num < client.pagination {
 				currentMessage := msg
-				// TODO: Move this into it's own custom widget
-				first := widget.NewButton(msg.Subject, func() {
-					client.selectedMessage = currentMessage.ID
-					client.repaint()
-				})
-				first.Alignment = widget.ButtonAlignLeading
+				first := newTappableLabel(msg.Subject)
+				first.msg = &currentMessage
+				first.selectedMessage = make(chan int)
+				go func() {
+					for click := range first.selectedMessage {
+						c := click
+						client.selectedMessage = c
+						break
+					}
+					go client.repaint()
+				}()
+				first.Alignment = fyne.TextAlignLeading
 				client.threadPane.Add(first)
 				second := new(tappableLabel)
 				second.msg = &currentMessage
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
 				second.SetText("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
 				client.threadPane.Add(second)
+				client.threadPane.Add(canvas.NewLine(theme.ShadowColor()))
 			}
 			if num == client.channelNeedle {
 				if num <= client.pagination {
