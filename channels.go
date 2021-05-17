@@ -71,10 +71,9 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 				}()
 				first.Alignment = fyne.TextAlignLeading
 				client.threadPane.Add(first)
-				second := new(tappableLabel)
-				second.msg = &currentMessage
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-				second.SetText("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
+				second := newLabel("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
+				second.TextStyle = fyne.TextStyle{Monospace: true}
 				client.threadPane.Add(second)
 				client.threadPane.Add(canvas.NewLine(theme.ShadowColor()))
 			}
@@ -123,34 +122,40 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 			}
 		}
 		if currentMessage.Subject != "" {
-			client.contentPane.Add(newLabel("Subject: " + currentMessage.Subject))
-			client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
-			if len(currentMessage.Raw.Page) > 0 {
-				for num, p := range currentMessage.Raw.Page[:1] {
-					if num >= 0 {
-						client.contentPane.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
-						client.contentPane.Add(newLabel(p.Data))
-						client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
-					}
+			s := newLabel("Subject: " + currentMessage.Subject)
+			s.TextStyle = fyne.TextStyle{Monospace: true}
+			client.contentPane.Add(s)
+		} else {
+			s := newLabel("No subject")
+			s.TextStyle = fyne.TextStyle{Monospace: true}
+			client.contentPane.Add(s)
+		}
+		client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
+		if len(currentMessage.Raw.Page) > 0 {
+			for num, p := range currentMessage.Raw.Page[:1] {
+				if num >= 0 {
+					client.contentPane.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+					client.contentPane.Add(newLabel(p.Data))
+					client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
 				}
 			}
-			if len(currentMessage.Raw.Attachment) > 0 {
-				for num, a := range currentMessage.Raw.Attachment {
-					if num >= 0 {
-						client.contentPane.Add(newLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name))
-						client.contentPane.Add(newLabel("Type: " + a.ContentType + " Description: " + a.Description))
-						adata := a.Data
-						image, err := renderImage(imageExtFromName(a.ContentType), adata)
-						if err != nil {
-							client.contentPane.Add(widget.NewLabel("Unable to display preview"))
-						} else {
-							i := canvas.NewImageFromImage(image)
-							i.FillMode = canvas.ImageFillContain
-							i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
-							client.contentPane.Add(i)
-						}
-						client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
+		}
+		if len(currentMessage.Raw.Attachment) > 0 {
+			for num, a := range currentMessage.Raw.Attachment {
+				if num >= 0 {
+					client.contentPane.Add(newLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name))
+					client.contentPane.Add(newLabel("Type: " + a.ContentType + " Description: " + a.Description))
+					adata := a.Data
+					image, err := renderImage(imageExtFromName(a.ContentType), adata)
+					if err != nil {
+						client.contentPane.Add(widget.NewLabel("Unable to display preview"))
+					} else {
+						i := canvas.NewImageFromImage(image)
+						i.FillMode = canvas.ImageFillContain
+						i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
+						client.contentPane.Add(i)
 					}
+					client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
 				}
 			}
 		}
