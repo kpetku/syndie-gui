@@ -27,6 +27,7 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 
 		icon := canvas.NewImageFromImage(client.db.getAvatar(channel.IdentHash))
 		icon.SetMinSize(fyne.NewSize(32, 32))
+		icon.FillMode = canvas.ImageFillContain
 
 		rw := new(tappableLabel)
 		rw.SetText(channel.Name + " " + shortIdent(channel.IdentHash) + " (?/" + strconv.Itoa(len(client.db.chanList[channel.IdentHash])) + ")")
