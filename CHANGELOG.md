@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add go mod
 - Add avatars to the message thread list
 - Add CHANGELOG.md
+- Add application versioning
 
 ### Changed
 - Updated GUI toolkit to Fyne v2.0.3

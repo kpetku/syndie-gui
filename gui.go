@@ -15,6 +15,8 @@ import (
 	"github.com/kpetku/syndie-core/fetcher"
 )
 
+const version = "v0.0.2"
+
 // GUI contains various GUI configuration options
 type GUI struct {
 	db     *database
@@ -49,7 +51,7 @@ func (client *GUI) Start(path string) {
 
 	a := app.New()
 
-	client.window = a.NewWindow("Syndie GUI")
+	client.window = a.NewWindow("Syndie" + version)
 	client.loadMainMenu()
 	client.applyOptions()
 
