@@ -39,6 +39,7 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 				c := click
 				client.selectedChannel = c
 				client.channelNeedle = 0
+				client.selectedMessage = 0
 				break
 			}
 			go client.repaint()

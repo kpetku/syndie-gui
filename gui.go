@@ -99,7 +99,7 @@ func (client *GUI) fetch(fetch bool) {
 		client.selectedFetchArchive.Text = client.selectedFetchArchive.PlaceHolder
 	}
 	if client.selectedFetchMethod == "URL" {
-		client.selectedFetchArchive.Text = "http://" + strings.TrimLeft(client.selectedFetchArchive.Text, "http://")
+		client.selectedFetchArchive.Text = "http://" + strings.TrimPrefix(client.selectedFetchArchive.Text, "http://")
 	}
 	dir, err := ioutil.TempDir("", "syndie")
 	if err != nil {
