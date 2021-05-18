@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -146,12 +147,24 @@ func (client *GUI) applyOptions() {
 
 func sanityCheckStartupDir(path string) {
 	var err error
+	var isWindows bool
+	if runtime.GOOS == "windows" {
+		isWindows = true
+	}
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
-		os.Mkdir(path, 0777)
-		_, err = os.Stat(path + "/db/")
-		if os.IsNotExist(err) {
+		if isWindows {
+			os.Mkdir(path, 0777)
+		} else {
+			os.Mkdir(path, 0700)
+		}
+	}
+	_, err = os.Stat(path + "/db/")
+	if os.IsNotExist(err) {
+		if isWindows {
 			os.Mkdir(path+"/db/", 0777)
+		} else {
+			os.Mkdir(path+"/db/", 0700)
 		}
 	}
 }

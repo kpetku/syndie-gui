@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix issue with messages containing long subject lines not wrapping
 - Darkmode style fixes
 - Fix stretched avatars in channel list
+- Fixed file permssions on Linux
 
 ## [0.0.2] - 2020-07-31
 ### Added
