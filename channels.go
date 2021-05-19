@@ -40,6 +40,7 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 				client.selectedChannel = c
 				client.channelNeedle = 0
 				client.selectedMessage = 0
+				client.messageList.ScrollToTop()
 				break
 			}
 			go client.repaint()
@@ -67,6 +68,7 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 					for click := range first.selectedMessage {
 						c := click
 						client.selectedMessage = c
+						client.contentArea.ScrollToTop()
 						break
 					}
 					go client.repaint()

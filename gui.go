@@ -28,6 +28,10 @@ type GUI struct {
 	selectedChannel string
 	channelNeedle   int
 	selectedMessage int
+
+	channelListOffsetY float32
+	messageListOffsetY float32
+	contentAreaOffsetY float32
 }
 
 // NewGUI creates a new GUI
@@ -54,10 +58,23 @@ func (client *GUI) Start(path string) {
 }
 
 func (client *GUI) repaint() {
+	if client.channelList != nil {
+		client.channelListOffsetY = client.channelList.Offset.Y
+	}
+	if client.messageList != nil {
+		client.messageListOffsetY = client.messageList.Offset.Y
+	}
+	if client.contentArea != nil {
+		client.contentAreaOffsetY = client.contentArea.Offset.Y
+	}
 	client.channelList = container.NewVScroll(client.renderChannelList())
 	client.messageList = container.NewVScroll(client.renderThreadList(client.channelNeedle))
 	client.contentArea = container.NewVScroll(client.renderContentArea())
 	client.window.SetContent(container.New(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
+
+	client.channelList.Offset = fyne.NewPos(float32(0), client.channelListOffsetY)
+	client.messageList.Offset = fyne.NewPos(float32(0), client.messageListOffsetY)
+	client.contentArea.Offset = fyne.NewPos(float32(0), client.contentAreaOffsetY)
 }
 
 func (client *GUI) applyOptions() {
