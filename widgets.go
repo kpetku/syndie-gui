@@ -45,12 +45,32 @@ func newLabel(s string) *widget.Label {
 	return w
 }
 
-func newLabelWithImage(icon *canvas.Image, label *widget.Label) *fyne.Container {
+func (client *GUI) newTappableLabelWithIcon(text string, chanID string, msgID int, icon *canvas.Image) *fyne.Container {
 	hbox := container.NewHBox()
 
 	icon.SetMinSize(fyne.NewSize(32, 32))
 	icon.FillMode = canvas.ImageFillContain
+
+	rw := new(tappableLabel)
+	rw.SetText(text)
+	if chanID != "" {
+		rw.chanID = chanID
+	}
+	rw.selectedChannel = make(chan string)
+	go func() {
+		for click := range rw.selectedChannel {
+			c := click
+			if client.selectedChannel != c {
+				client.messageList.ScrollToTop()
+			}
+			client.selectedChannel = c
+			client.channelNeedle = 0
+			client.selectedMessage = msgID
+		}
+		go client.repaint()
+	}()
+
 	hbox.Add(icon)
-	hbox.Add(label)
+	hbox.Add(rw)
 	return hbox
 }

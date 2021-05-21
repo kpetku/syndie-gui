@@ -23,32 +23,9 @@ func (client *GUI) renderChannelList() fyne.CanvasObject {
 				continue
 			}
 		}
-		hbox := container.NewHBox()
-
 		icon := canvas.NewImageFromImage(client.db.getAvatar(channel.IdentHash))
-		icon.SetMinSize(fyne.NewSize(32, 32))
-		icon.FillMode = canvas.ImageFillContain
-
-		rw := new(tappableLabel)
-		rw.SetText(channel.Name + " " + shortIdent(channel.IdentHash) + " (?/" + strconv.Itoa(len(client.db.chanList[channel.IdentHash])) + ")")
-		rw.chanID = channel.IdentHash
-
-		rw.selectedChannel = make(chan string)
-		go func() {
-			for click := range rw.selectedChannel {
-				c := click
-				client.selectedChannel = c
-				client.channelNeedle = 0
-				client.selectedMessage = 0
-				client.messageList.ScrollToTop()
-				break
-			}
-			go client.repaint()
-		}()
-
-		hbox.Add(icon)
-		hbox.Add(rw)
-		client.channelPane.Add(hbox)
+		text := channel.Name + " " + shortIdent(channel.IdentHash) + " (?/" + strconv.Itoa(len(client.db.chanList[channel.IdentHash])) + ")"
+		client.channelPane.Add(client.newTappableLabelWithIcon(text, channel.IdentHash, 0, icon))
 	}
 	return client.channelPane
 }
@@ -76,9 +53,9 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 				first.Alignment = fyne.TextAlignLeading
 				client.threadPane.Add(first)
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-				second := widget.NewLabel("by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02"))
-				second.TextStyle = fyne.TextStyle{Monospace: true}
-				client.threadPane.Add(newLabelWithImage(canvas.NewImageFromImage(client.db.getAvatar(msg.Author)), second))
+				icon := canvas.NewImageFromImage(client.db.getAvatar(msg.Author))
+				text := "by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
+				client.threadPane.Add(client.newTappableLabelWithIcon(text, client.selectedChannel, msg.ID, icon))
 				client.threadPane.Add(canvas.NewLine(theme.ShadowColor()))
 			}
 			if num == client.channelNeedle {
