@@ -19,10 +19,8 @@ type GUI struct {
 
 	channelPane *fyne.Container
 	threadPane  *fyne.Container
-	contentPane *fyne.Container
 	channelList *container.Scroll
 	messageList *container.Scroll
-	contentArea *container.Scroll
 
 	pagination      int
 	selectedChannel string
@@ -31,7 +29,6 @@ type GUI struct {
 
 	channelListOffsetY float32
 	messageListOffsetY float32
-	contentAreaOffsetY float32
 }
 
 // NewGUI creates a new GUI
@@ -64,17 +61,12 @@ func (client *GUI) repaint() {
 	if client.messageList != nil {
 		client.messageListOffsetY = client.messageList.Offset.Y
 	}
-	if client.contentArea != nil {
-		client.contentAreaOffsetY = client.contentArea.Offset.Y
-	}
 	client.channelList = container.NewVScroll(client.renderChannelList())
 	client.messageList = container.NewVScroll(client.renderThreadList(client.channelNeedle))
-	client.contentArea = container.NewVScroll(client.renderContentArea())
-	client.window.SetContent(container.New(layout.NewGridLayout(3), client.channelList, client.messageList, client.contentArea))
+	client.window.SetContent(container.New(layout.NewBorderLayout(nil, nil, client.channelList, nil), client.channelList, client.messageList))
 
 	client.channelList.Offset = fyne.NewPos(float32(0), client.channelListOffsetY)
 	client.messageList.Offset = fyne.NewPos(float32(0), client.messageListOffsetY)
-	client.contentArea.Offset = fyne.NewPos(float32(0), client.contentAreaOffsetY)
 }
 
 func (client *GUI) applyOptions() {

@@ -7,10 +7,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-
-	"github.com/kpetku/syndie-core/data"
+	//	"github.com/kpetku/syndie-core/data"
 )
 
 func (client *GUI) renderChannelList() fyne.CanvasObject {
@@ -38,25 +36,36 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 		for num, msg := range client.db.chanList[client.selectedChannel] {
 			if num <= client.channelNeedle || num < client.pagination {
 				currentMessage := msg
-				first := newTappableLabel(msg.Subject)
-				first.msg = &currentMessage
-				first.selectedMessage = make(chan int)
-				go func() {
-					for click := range first.selectedMessage {
-						c := click
-						client.selectedMessage = c
-						client.contentArea.ScrollToTop()
-						break
-					}
-					go client.repaint()
-				}()
-				first.Alignment = fyne.TextAlignLeading
-				client.threadPane.Add(first)
+				/*
+					first := newTappableLabel(msg.Subject)
+					first.msg = &currentMessage
+					first.selectedMessage = make(chan int)
+					go func() {
+						for click := range first.selectedMessage {
+							c := click
+							client.selectedMessage = c
+							break
+						}
+						go client.repaint()
+					}()
+					first.Alignment = fyne.TextAlignLeading
+					client.threadPane.Add(first)
+				*/
 				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
 				icon := canvas.NewImageFromImage(client.db.getAvatar(msg.Author))
 				text := "by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
-				client.threadPane.Add(client.newTappableLabelWithIcon(text, client.selectedChannel, msg.ID, icon))
-				client.threadPane.Add(canvas.NewLine(theme.ShadowColor()))
+				vbox := container.NewVBox()
+				vbox.Add(client.newTappableLabelWithIcon(text, client.selectedChannel, msg.ID, icon))
+				if len(msg.Raw.Page) > 0 {
+					for num, p := range msg.Raw.Page[:1] {
+						if num >= 0 {
+							vbox.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+							vbox.Add(newLabel(p.Data))
+						}
+					}
+				}
+				cardTest := widget.NewCard(msg.Subject, text, vbox)
+				client.threadPane.Add(cardTest)
 			}
 			if num == client.channelNeedle {
 				if num <= client.pagination {
@@ -89,6 +98,7 @@ func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
 	return client.threadPane
 }
 
+/*
 func (client *GUI) renderContentArea() fyne.CanvasObject {
 	client.contentPane = container.NewVBox()
 	if client.selectedChannel == "" {
@@ -133,7 +143,7 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 					} else {
 						i := canvas.NewImageFromImage(image)
 						i.FillMode = canvas.ImageFillContain
-						i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
+							i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
 						client.contentPane.Add(i)
 					}
 					client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
@@ -143,6 +153,7 @@ func (client *GUI) renderContentArea() fyne.CanvasObject {
 	}
 	return client.contentPane
 }
+*/
 
 func shortIdent(i string) string {
 	if len(i) > 6 {
