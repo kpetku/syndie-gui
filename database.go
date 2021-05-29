@@ -6,10 +6,9 @@ import (
 	"image/jpeg"
 	"io/ioutil"
 
-	"github.com/boltdb/bolt"
-
 	"github.com/kpetku/libsyndie/syndieutil"
 	"github.com/kpetku/syndie-core/data"
+	bolt "go.etcd.io/bbolt"
 )
 
 type database struct {

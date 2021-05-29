@@ -90,7 +90,7 @@ func (client *GUI) fetchFromArchiveServer() {
 		}
 		client.db.reload()
 		progress.Hide()
-		client.repaint()
+		client.repaintMainWindow()
 	}, client.window)
 	content.Add(selectedFetchArchive)
 	cc.Show()

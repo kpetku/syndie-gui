@@ -5,155 +5,78 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	//	"github.com/kpetku/syndie-core/data"
 )
 
-func (client *GUI) renderChannelList() fyne.CanvasObject {
-	var hideEmptyChannels = true
+func (client *GUI) renderThreadList(needle int) *fyne.Container {
+	client.threadPane = container.NewVBox()
+	for num, msg := range client.db.chanList[client.selectedChannel] {
+		if num <= client.channelNeedle || num < client.pagination {
+			currentMessage := msg
+			date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
+			text := "by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
+			vbox := container.NewVBox()
 
-	client.channelPane = container.NewVBox()
-	for _, channel := range client.db.Channels {
-		if hideEmptyChannels {
-			if len(client.db.chanList[channel.IdentHash]) == 0 {
+			hbox := container.NewHBox()
+			icon := client.avatarCache[msg.Author]
+			if icon != nil {
+				hbox.Add(icon)
+			}
+			hbox.Add(widget.NewLabel(text))
+
+			vbox.Add(hbox)
+			if len(msg.Raw.Page) > 0 {
+				for num, p := range msg.Raw.Page[:1] {
+					if num >= 0 {
+						vbox.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
+						vbox.Add(widget.NewSeparator())
+						vbox.Add(newLabel(p.Data))
+					}
+				}
+			}
+			client.threadPane.Add(widget.NewCard(msg.Subject, "", vbox))
+		}
+		if num == client.channelNeedle {
+			if num <= client.pagination {
 				continue
 			}
+			client.threadPane.Add(widget.NewButton("Show more messages", func() {
+				client.channelNeedle = needle + client.pagination
+				client.renderThreadList(needle + client.pagination)
+				client.repaintMainWindow()
+			}))
 		}
-		icon := canvas.NewImageFromImage(client.db.getAvatar(channel.IdentHash))
-		text := channel.Name + " " + shortIdent(channel.IdentHash) + " (?/" + strconv.Itoa(len(client.db.chanList[channel.IdentHash])) + ")"
-		client.channelPane.Add(client.newTappableLabelWithIcon(text, channel.IdentHash, 0, icon))
 	}
-	return client.channelPane
-}
-
-func (client *GUI) renderThreadList(needle int) fyne.CanvasObject {
-	client.threadPane = container.NewVBox()
-	if client.selectedChannel == "" {
-		client.threadPane.Add(widget.NewLabel("Select a channel from the menu to the left to get started"))
-	} else {
-		for num, msg := range client.db.chanList[client.selectedChannel] {
-			if num <= client.channelNeedle || num < client.pagination {
-				currentMessage := msg
-				/*
-					first := newTappableLabel(msg.Subject)
-					first.msg = &currentMessage
-					first.selectedMessage = make(chan int)
-					go func() {
-						for click := range first.selectedMessage {
-							c := click
-							client.selectedMessage = c
-							break
-						}
-						go client.repaint()
-					}()
-					first.Alignment = fyne.TextAlignLeading
-					client.threadPane.Add(first)
-				*/
-				date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-				icon := canvas.NewImageFromImage(client.db.getAvatar(msg.Author))
-				text := "by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
-				vbox := container.NewVBox()
-				vbox.Add(client.newTappableLabelWithIcon(text, client.selectedChannel, msg.ID, icon))
-				if len(msg.Raw.Page) > 0 {
-					for num, p := range msg.Raw.Page[:1] {
-						if num >= 0 {
-							vbox.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
-							vbox.Add(newLabel(p.Data))
-						}
-					}
-				}
-				cardTest := widget.NewCard(msg.Subject, text, vbox)
-				client.threadPane.Add(cardTest)
-			}
-			if num == client.channelNeedle {
-				if num <= client.pagination {
-					continue
-				}
-				client.threadPane.Add(widget.NewButton("Show more messages", func() {
-					client.channelNeedle = needle + client.pagination
-					client.renderThreadList(needle + client.pagination)
-					client.repaint()
-				}))
-			}
+	if needle == client.channelNeedle {
+		if len(client.db.chanList[client.selectedChannel])-1 <= client.pagination {
+			return client.threadPane
 		}
-		if needle == client.channelNeedle {
-			if len(client.db.chanList[client.selectedChannel])-1 <= client.pagination {
-				return client.threadPane
-			}
-			if needle <= client.pagination {
-				client.threadPane.Add(widget.NewButton("Show more messages", func() {
-					if client.channelNeedle == needle {
-						client.channelNeedle = client.pagination + (client.pagination - 1)
-					} else {
-						client.channelNeedle = needle + client.pagination
-					}
-					client.renderThreadList(needle + client.pagination)
-					client.repaint()
-				}))
-			}
+		if needle <= client.pagination {
+			client.threadPane.Add(widget.NewButton("Show more messages", func() {
+				if client.channelNeedle == needle {
+					client.channelNeedle = client.pagination + (client.pagination - 1)
+				} else {
+					client.channelNeedle = needle + client.pagination
+				}
+				client.renderThreadList(needle + client.pagination)
+				client.repaintMainWindow()
+			}))
 		}
 	}
 	return client.threadPane
 }
 
-/*
-func (client *GUI) renderContentArea() fyne.CanvasObject {
-	client.contentPane = container.NewVBox()
-	if client.selectedChannel == "" {
-		return client.contentPane
-	}
-	if client.selectedMessage != 0 {
-		var currentMessage data.Message
-		for _, msg := range client.db.chanList[client.selectedChannel] {
-			if msg.ID == client.selectedMessage {
-				currentMessage = msg
-				break
-			}
-		}
-		if currentMessage.Subject != "" {
-			s := newLabel("Subject: " + currentMessage.Subject)
-			s.TextStyle = fyne.TextStyle{Monospace: true}
-			client.contentPane.Add(s)
-		} else {
-			s := newLabel("No subject")
-			s.TextStyle = fyne.TextStyle{Monospace: true}
-			client.contentPane.Add(s)
-		}
-		client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
-		if len(currentMessage.Raw.Page) > 0 {
-			for num, p := range currentMessage.Raw.Page[:1] {
-				if num >= 0 {
-					client.contentPane.Add(newLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Page)-1)))
-					client.contentPane.Add(newLabel(p.Data))
-					client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
-				}
-			}
-		}
-		if len(currentMessage.Raw.Attachment) > 0 {
-			for num, a := range currentMessage.Raw.Attachment {
-				if num >= 0 {
-					client.contentPane.Add(newLabel("Attachment: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(currentMessage.Raw.Attachment)) + " Name: " + a.Name))
-					client.contentPane.Add(newLabel("Type: " + a.ContentType + " Description: " + a.Description))
-					adata := a.Data
-					image, err := renderImage(imageExtFromName(a.ContentType), adata)
-					if err != nil {
-						client.contentPane.Add(widget.NewLabel("Unable to display preview"))
-					} else {
-						i := canvas.NewImageFromImage(image)
-						i.FillMode = canvas.ImageFillContain
-							i.SetMinSize(fyne.NewSize(fyne.Min(float32(image.Bounds().Dx()), client.contentArea.Size().Width), float32(image.Bounds().Dy())))
-						client.contentPane.Add(i)
-					}
-					client.contentPane.Add(canvas.NewLine(theme.ShadowColor()))
-				}
-			}
-		}
-	}
-	return client.contentPane
+func (client *GUI) renderThreadListWithMenu(needle int) *fyne.Container {
+	backButton := widget.NewButton("Back", func() {
+		client.selectedChannel = ""
+		client.repaintMainWindow()
+	})
+	navBar := container.NewGridWithColumns(3)
+	navBar.Add(backButton)
+	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(client.renderThreadList(needle)))
 }
-*/
 
 func shortIdent(i string) string {
 	if len(i) > 6 {

@@ -6,8 +6,10 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
 
 const version = "v0.0.2"
@@ -17,18 +19,12 @@ type GUI struct {
 	db     *database
 	window fyne.Window
 
-	channelPane *fyne.Container
 	threadPane  *fyne.Container
-	channelList *container.Scroll
-	messageList *container.Scroll
+	avatarCache map[string]*canvas.Image
 
 	pagination      int
 	selectedChannel string
 	channelNeedle   int
-	selectedMessage int
-
-	channelListOffsetY float32
-	messageListOffsetY float32
 }
 
 // NewGUI creates a new GUI
@@ -45,28 +41,30 @@ func (client *GUI) Start(path string) {
 
 	a := app.New()
 
-	client.window = a.NewWindow("Syndie" + version)
+	client.window = a.NewWindow("Syndie " + version)
 	client.renderMainMenu()
 	client.applyOptions()
-
-	client.repaint()
+	client.preloadAvatarCache()
 	client.window.Resize(fyne.NewSize(800, 600))
+	client.window.SetContent(client.renderFeedView())
 	client.window.ShowAndRun()
 }
 
-func (client *GUI) repaint() {
-	if client.channelList != nil {
-		client.channelListOffsetY = client.channelList.Offset.Y
+func (client *GUI) preloadAvatarCache() {
+	client.avatarCache = make(map[string]*canvas.Image)
+	for _, channel := range client.db.Channels {
+		client.avatarCache[channel.IdentHash] = canvas.NewImageFromImage(client.db.getAvatar(channel.IdentHash))
+		client.avatarCache[channel.IdentHash].SetMinSize(fyne.NewSize(32, 32))
+		client.avatarCache[channel.IdentHash].FillMode = canvas.ImageFillContain
 	}
-	if client.messageList != nil {
-		client.messageListOffsetY = client.messageList.Offset.Y
-	}
-	client.channelList = container.NewVScroll(client.renderChannelList())
-	client.messageList = container.NewVScroll(client.renderThreadList(client.channelNeedle))
-	client.window.SetContent(container.New(layout.NewBorderLayout(nil, nil, client.channelList, nil), client.channelList, client.messageList))
+}
 
-	client.channelList.Offset = fyne.NewPos(float32(0), client.channelListOffsetY)
-	client.messageList.Offset = fyne.NewPos(float32(0), client.messageListOffsetY)
+func (client *GUI) repaintMainWindow() {
+	if client.selectedChannel != "" {
+		client.window.SetContent(container.NewScroll(newCenteredContainer(client.renderThreadListWithMenu(0))))
+		return
+	}
+	client.window.SetContent(client.renderFeedView())
 }
 
 func (client *GUI) applyOptions() {
@@ -95,4 +93,13 @@ func sanityCheckStartupDir(path string) {
 			os.Mkdir(path+"/db/", 0700)
 		}
 	}
+}
+
+func newCenteredContainer(l *fyne.Container) *fyne.Container {
+	empty := widget.NewLabel("")
+	if !fyne.CurrentDevice().IsMobile() {
+		// Center the layout on desktop
+		return container.New(layout.NewGridLayout(3), empty, l, empty)
+	}
+	return l
 }

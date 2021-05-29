@@ -1,31 +1,29 @@
 package main
 
 import (
-	"github.com/kpetku/syndie-core/data"
-
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
-	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/kpetku/syndie-core/data"
 )
 
-type tappableLabel struct {
-	widget.Label
+type tappableCard struct {
+	widget.Card
 	msg             *data.Message
 	chanID          string
 	selectedMessage chan int
 	selectedChannel chan string
 }
 
-func newTappableLabel(text string) *tappableLabel {
-	label := &tappableLabel{}
-	label.ExtendBaseWidget(label)
-	label.SetText(text)
-	label.Wrapping = fyne.TextWrapBreak
-	return label
+func newTappableCard(title, subtitle string, content fyne.CanvasObject) *tappableCard {
+	card := &tappableCard{}
+	card.ExtendBaseWidget(card)
+	card.SetTitle(title)
+	card.SetSubTitle(subtitle)
+	card.SetContent(content)
+	return card
 }
 
-func (t *tappableLabel) Tapped(_ *fyne.PointEvent) {
+func (t *tappableCard) Tapped(_ *fyne.PointEvent) {
 	if t.selectedMessage != nil {
 		t.selectedMessage <- t.msg.ID
 		close(t.selectedMessage)
@@ -36,41 +34,11 @@ func (t *tappableLabel) Tapped(_ *fyne.PointEvent) {
 	}
 }
 
-func (t *tappableLabel) TappedSecondary(_ *fyne.PointEvent) {
+func (t *tappableCard) TappedSecondary(_ *fyne.PointEvent) {
 }
 
 func newLabel(s string) *widget.Label {
 	w := widget.NewLabel(s)
 	w.Wrapping = fyne.TextWrapBreak
 	return w
-}
-
-func (client *GUI) newTappableLabelWithIcon(text string, chanID string, msgID int, icon *canvas.Image) *fyne.Container {
-	hbox := container.NewHBox()
-
-	icon.SetMinSize(fyne.NewSize(32, 32))
-	icon.FillMode = canvas.ImageFillContain
-
-	rw := new(tappableLabel)
-	rw.SetText(text)
-	if chanID != "" {
-		rw.chanID = chanID
-	}
-	rw.selectedChannel = make(chan string)
-	go func() {
-		for click := range rw.selectedChannel {
-			c := click
-			if client.selectedChannel != c {
-				client.messageList.ScrollToTop()
-			}
-			client.selectedChannel = c
-			client.channelNeedle = 0
-			client.selectedMessage = msgID
-		}
-		go client.repaint()
-	}()
-
-	hbox.Add(icon)
-	hbox.Add(rw)
-	return hbox
 }

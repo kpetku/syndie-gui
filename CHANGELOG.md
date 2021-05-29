@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed "jumpy" scroll bars while changing channels or messages
 - Fixed issue with some messages not being tappable
 - Change the message view to a more modern card layout
+- Cache avatars in memory
+- Major UI rework
 
 ## [0.0.2] - 2020-07-31
 ### Added
