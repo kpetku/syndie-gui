@@ -50,6 +50,13 @@ func (client *GUI) Start(path string) {
 	client.window.ShowAndRun()
 }
 
+// Rehash reloads the database, reloads the avatar cache, and repaints the main window
+func (client *GUI) Rehash() {
+	client.db.reload()
+	client.preloadAvatarCache()
+	client.repaintMainWindow()
+}
+
 func (client *GUI) preloadAvatarCache() {
 	client.avatarCache = make(map[string]*canvas.Image)
 	for _, channel := range client.db.Channels {

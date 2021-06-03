@@ -31,6 +31,7 @@ func (client *GUI) fetchFromLocalFile() {
 		}
 		dg := dialog.NewInformation("Open file", "Message imported", client.window)
 		dg.Show()
+		client.Rehash()
 	}, client.window)
 	fd.SetFilter(storage.NewExtensionFileFilter([]string{".syndie"}))
 	fd.Show()
@@ -62,6 +63,7 @@ func (client *GUI) fetchFromLocalFolder() {
 		progress.Hide()
 		dg := dialog.NewInformation("Open directory", "Messages imported", client.window)
 		dg.Show()
+		client.Rehash()
 	}, client.window)
 	fd.Show()
 }
@@ -90,7 +92,7 @@ func (client *GUI) fetchFromArchiveServer() {
 		}
 		client.db.reload()
 		progress.Hide()
-		client.repaintMainWindow()
+		client.Rehash()
 	}, client.window)
 	content.Add(selectedFetchArchive)
 	cc.Show()
