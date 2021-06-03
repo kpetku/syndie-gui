@@ -111,9 +111,9 @@ func newCenteredContainer(l *fyne.Container) *fyne.Container {
 	return l
 }
 
-func (client GUI) renderNavBar() *fyne.Container {
+func (client GUI) renderNavBar(highlighted string) *fyne.Container {
 	feedButton := widget.NewButton("Feed", func() { client.window.SetContent(client.renderFeedView()) })
-	latestButton := widget.NewButton("Latest", func() {})
+	latestButton := widget.NewButton("Latest", func() { client.window.SetContent(client.renderLatestView()) })
 	forYouButton := widget.NewButton("For you", func() {})
 	followingButton := widget.NewButton("Following", func() {})
 
@@ -122,6 +122,15 @@ func (client GUI) renderNavBar() *fyne.Container {
 	navBar.Add(forYouButton)
 	navBar.Add(latestButton)
 	navBar.Add(followingButton)
-	feedButton.Importance = widget.HighImportance
+	switch highlighted {
+	case "feed":
+		feedButton.Importance = widget.HighImportance
+	case "latest":
+		latestButton.Importance = widget.HighImportance
+	case "foryou":
+		forYouButton.Importance = widget.HighImportance
+	case "following":
+		followingButton.Importance = widget.HighImportance
+	}
 	return navBar
 }

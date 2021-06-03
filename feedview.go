@@ -43,6 +43,6 @@ func (client *GUI) renderFeedView() fyne.CanvasObject {
 		}()
 		content.Add(card)
 	}
-	navBar := client.renderNavBar()
+	navBar := client.renderNavBar("feed")
 	return newCenteredContainer(container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content)))
 }
