@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"io/ioutil"
@@ -14,7 +14,7 @@ import (
 	"github.com/kpetku/syndie-core/fetcher"
 )
 
-func (client *GUI) fetchFromLocalFile() {
+func (client *UI) fetchFromLocalFile() {
 	fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
 		if err != nil {
 			dialog.ShowError(err, client.window)
@@ -37,7 +37,7 @@ func (client *GUI) fetchFromLocalFile() {
 	fd.Show()
 }
 
-func (client *GUI) fetchFromLocalFolder() {
+func (client *UI) fetchFromLocalFolder() {
 	fd := dialog.NewFolderOpen(func(file fyne.ListableURI, err error) {
 		if err != nil {
 			dialog.ShowError(err, client.window)
@@ -68,7 +68,7 @@ func (client *GUI) fetchFromLocalFolder() {
 	fd.Show()
 }
 
-func (client *GUI) fetchFromArchiveServer() {
+func (client *UI) fetchFromArchiveServer() {
 	content := container.NewVBox()
 	selectedFetchArchive := widget.NewEntry()
 	content.Add(widget.NewLabel("Press fetch to pull messages from the URL below"))

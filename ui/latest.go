@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fyne.io/fyne/v2"
@@ -8,7 +8,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func (client *GUI) renderLatestView() fyne.CanvasObject {
+func (client *UI) renderLatestView() fyne.CanvasObject {
 	content := container.New(layout.NewFormLayout())
 	for _, c := range client.db.Channels {
 		messages := client.db.ChanList[c.IdentHash]
@@ -26,6 +26,6 @@ func (client *GUI) renderLatestView() fyne.CanvasObject {
 		card := client.msgToCard(msg)
 		content.Add(card)
 	}
-	navBar := client.renderNavBar("latest")
+	navBar := client.NewNavbar("latest")
 	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content))
 }

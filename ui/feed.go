@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"fyne.io/fyne/v2"
@@ -6,12 +6,13 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/kpetku/syndie-gui/widgets"
 )
 
 const noDescription = "No description"
 const noName = "Anonymous"
 
-func (client *GUI) renderFeedView() fyne.CanvasObject {
+func (client *UI) renderFeedView() fyne.CanvasObject {
 	content := container.New(layout.NewFormLayout())
 	for _, c := range client.db.Channels {
 		var desc, name string
@@ -30,11 +31,11 @@ func (client *GUI) renderFeedView() fyne.CanvasObject {
 		img.FillMode = canvas.ImageFillContain
 		content.Add(img)
 
-		card := newTappableCard(name, c.IdentHash, widget.NewLabel(desc))
-		card.chanID = c.IdentHash
-		card.selectedChannel = make(chan string)
+		card := widgets.NewTappableCard(name, c.IdentHash, widget.NewLabel(desc))
+		card.ChanID = c.IdentHash
+		card.SelectedChannel = make(chan string)
 		go func() {
-			for click := range card.selectedChannel {
+			for click := range card.SelectedChannel {
 				c := click
 				client.selectedChannel = c
 				break
@@ -43,6 +44,6 @@ func (client *GUI) renderFeedView() fyne.CanvasObject {
 		}()
 		content.Add(card)
 	}
-	navBar := client.renderNavBar("feed")
-	return newCenteredContainer(container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content)))
+	navBar := client.NewNavbar("feed")
+	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content))
 }

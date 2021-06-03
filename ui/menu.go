@@ -1,10 +1,10 @@
-package main
+package ui
 
 import (
 	"fyne.io/fyne/v2"
 )
 
-func (client *GUI) renderMainMenu() {
+func (client *UI) renderMainMenu() *fyne.MainMenu {
 	main := fyne.NewMenu("File",
 		fyne.NewMenuItem("Open file", func() {
 			client.fetchFromLocalFile()
@@ -16,5 +16,5 @@ func (client *GUI) renderMainMenu() {
 			client.fetchFromArchiveServer()
 		}),
 	)
-	client.window.SetMainMenu(fyne.NewMainMenu(main))
+	return fyne.NewMainMenu(main)
 }

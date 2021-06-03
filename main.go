@@ -2,10 +2,12 @@ package main
 
 import (
 	"os/user"
+
+	"github.com/kpetku/syndie-gui/ui"
 )
 
 func main() {
-	client := NewGUI()
+	client := ui.NewUI()
 
 	usr, err := user.Current()
 	if err != nil {
