@@ -90,7 +90,7 @@ func (client *GUI) fetchFromArchiveServer() {
 			de := dialog.NewError(err, client.window)
 			de.Show()
 		}
-		client.db.reload()
+		client.db.Reload()
 		progress.Hide()
 		client.Rehash()
 	}, client.window)

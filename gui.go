@@ -10,13 +10,12 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"github.com/kpetku/syndie-gui/database"
 )
-
-const version = "v0.0.2"
 
 // GUI contains various GUI configuration options
 type GUI struct {
-	db     *database
+	db     *database.Database
 	window fyne.Window
 
 	threadPane  *fyne.Container
@@ -35,9 +34,9 @@ func NewGUI() *GUI {
 // Start launches a new syndie-gui application
 func (client *GUI) Start(path string) {
 	sanityCheckStartupDir(path)
-	client.db = newDatabase()
-	client.db.openDB(path + "/db/bolt.db")
-	client.db.reload()
+	client.db = database.New()
+	client.db.Open(path + "/db/bolt.db")
+	client.db.Reload()
 
 	a := app.New()
 
@@ -52,7 +51,7 @@ func (client *GUI) Start(path string) {
 
 // Rehash reloads the database, reloads the avatar cache, and repaints the main window
 func (client *GUI) Rehash() {
-	client.db.reload()
+	client.db.Reload()
 	client.preloadAvatarCache()
 	client.repaintMainWindow()
 }
@@ -60,7 +59,7 @@ func (client *GUI) Rehash() {
 func (client *GUI) preloadAvatarCache() {
 	client.avatarCache = make(map[string]*canvas.Image)
 	for _, channel := range client.db.Channels {
-		client.avatarCache[channel.IdentHash] = canvas.NewImageFromImage(client.db.getAvatar(channel.IdentHash))
+		client.avatarCache[channel.IdentHash] = canvas.NewImageFromImage(client.db.GetAvatar(channel.IdentHash))
 		client.avatarCache[channel.IdentHash].SetMinSize(fyne.NewSize(32, 32))
 		client.avatarCache[channel.IdentHash].FillMode = canvas.ImageFillContain
 	}

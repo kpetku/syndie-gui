@@ -13,7 +13,7 @@ import (
 
 func (client *GUI) renderThreadList(needle int) *fyne.Container {
 	client.threadPane = container.NewVBox()
-	for num, msg := range client.db.chanList[client.selectedChannel] {
+	for num, msg := range client.db.ChanList[client.selectedChannel] {
 		if num <= client.channelNeedle || num < client.pagination {
 			currentMessage := msg
 			client.threadPane.Add(client.msgToCard(currentMessage))
@@ -30,7 +30,7 @@ func (client *GUI) renderThreadList(needle int) *fyne.Container {
 		}
 	}
 	if needle == client.channelNeedle {
-		if len(client.db.chanList[client.selectedChannel])-1 <= client.pagination {
+		if len(client.db.ChanList[client.selectedChannel])-1 <= client.pagination {
 			return client.threadPane
 		}
 		if needle <= client.pagination {
@@ -67,7 +67,7 @@ func shortIdent(i string) string {
 
 func (client GUI) msgToCard(msg data.Message) *widget.Card {
 	date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-	text := "by " + client.db.nameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
+	text := "by " + client.db.NameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
 	vbox := container.NewVBox()
 
 	hbox := container.NewHBox()

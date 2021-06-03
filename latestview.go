@@ -11,12 +11,12 @@ import (
 func (client *GUI) renderLatestView() fyne.CanvasObject {
 	content := container.New(layout.NewFormLayout())
 	for _, c := range client.db.Channels {
-		messages := client.db.chanList[c.IdentHash]
+		messages := client.db.ChanList[c.IdentHash]
 		if len(messages) == 0 {
 			continue
 		}
 		msg := messages[len(messages)-1]
-		chanCard := widget.NewCard("", client.db.nameFromChanIdentHash(msg.TargetChannel), nil)
+		chanCard := widget.NewCard("", client.db.NameFromChanIdentHash(msg.TargetChannel), nil)
 		img := client.avatarCache[c.IdentHash]
 		img.SetMinSize(fyne.NewSize(64, 64))
 		img.FillMode = canvas.ImageFillStretch
