@@ -110,3 +110,18 @@ func newCenteredContainer(l *fyne.Container) *fyne.Container {
 	}
 	return l
 }
+
+func (client GUI) renderNavBar() *fyne.Container {
+	feedButton := widget.NewButton("Feed", func() { client.window.SetContent(client.renderFeedView()) })
+	latestButton := widget.NewButton("Latest", func() {})
+	forYouButton := widget.NewButton("For you", func() {})
+	followingButton := widget.NewButton("Following", func() {})
+
+	navBar := container.NewGridWithColumns(4)
+	navBar.Add(feedButton)
+	navBar.Add(forYouButton)
+	navBar.Add(latestButton)
+	navBar.Add(followingButton)
+	feedButton.Importance = widget.HighImportance
+	return navBar
+}

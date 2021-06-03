@@ -43,16 +43,6 @@ func (client *GUI) renderFeedView() fyne.CanvasObject {
 		}()
 		content.Add(card)
 	}
-	feedButton := widget.NewButton("Feed", func() {})
-	latestButton := widget.NewButton("Latest", func() {})
-	forYouButton := widget.NewButton("For you", func() {})
-	followingButton := widget.NewButton("Following", func() {})
-
-	navBar := container.NewGridWithColumns(4)
-	navBar.Add(feedButton)
-	navBar.Add(forYouButton)
-	navBar.Add(latestButton)
-	navBar.Add(followingButton)
-	feedButton.Importance = widget.HighImportance
+	navBar := client.renderNavBar()
 	return newCenteredContainer(container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content)))
 }
