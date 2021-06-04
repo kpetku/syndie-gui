@@ -12,8 +12,11 @@ func (client *UI) renderMainMenu() *fyne.MainMenu {
 		fyne.NewMenuItem("Open folder", func() {
 			client.fetchFromLocalFolder()
 		}),
-		fyne.NewMenuItem("Fetch from URL", func() {
-			client.fetchFromArchiveServer()
+		fyne.NewMenuItem("Fetch from using I2P or Tor (anonymous)", func() {
+			client.fetchFromArchiveServer(true)
+		}),
+		fyne.NewMenuItem("Fetch from the Internet (non-anonymous)", func() {
+			client.fetchFromArchiveServer(false)
 		}),
 	)
 	return fyne.NewMainMenu(main)

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add application versioning
 - Rehash GUI after importing messages
 - Add latest message view
+- Add anonymous/non-anonymous fetch
 
 ### Changed
 - Updated GUI toolkit to Fyne v2.0.3
