@@ -10,6 +10,8 @@ require (
 	github.com/srwiley/oksvg v0.0.0-20210519022825-9fc0c575d5fe // indirect
 	github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780 // indirect
 	go.etcd.io/bbolt v1.3.6
-	golang.org/x/image v0.0.0-20210504121937-7319ad40d33e // indirect
+	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9 // indirect
+	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
+	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
