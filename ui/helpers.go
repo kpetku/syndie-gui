@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -31,14 +32,12 @@ func (client UI) msgToCard(msg data.Message) *widget.Card {
 	text := "by " + client.db.NameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
 	vbox := container.NewVBox()
 
-	hbox := container.NewHBox()
-	icon := client.avatarCache[msg.Author]
-	if icon != nil {
-		hbox.Add(icon)
+	avatar := client.avatarCache[msg.Author]
+	if avatar == nil {
+		avatar = &canvas.Image{}
 	}
-	hbox.Add(widgets.NewLabel(text))
-
-	vbox.Add(hbox)
+	avatar.SetMinSize(fyne.NewSize(32, 32))
+	vbox.Add(container.New(layout.NewFormLayout(), avatar, widgets.NewLabel(text)))
 	if len(msg.Raw.Page) > 0 {
 		for num, p := range msg.Raw.Page[:1] {
 			if num >= 0 {
