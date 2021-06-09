@@ -6,6 +6,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -43,7 +44,11 @@ func (client UI) msgToCard(msg data.Message) *widget.Card {
 			if num >= 0 {
 				vbox.Add(widgets.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(msg.Raw.Page)-1)))
 				vbox.Add(widget.NewSeparator())
-				vbox.Add(widgets.NewLabel(p.Data))
+				mu, err := widgets.NewMarkup(p.Data)
+				if err != nil {
+					log.Printf("MarkUp err: %s", err.Error())
+				}
+				vbox.Add(mu)
 			}
 		}
 	}
