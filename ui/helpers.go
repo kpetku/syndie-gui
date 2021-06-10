@@ -1,14 +1,8 @@
 package ui
 
 import (
-	"bytes"
-	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"log"
 	"strconv"
-	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -44,9 +38,9 @@ func (client UI) msgToCard(msg data.Message) *widget.Card {
 			if num >= 0 {
 				vbox.Add(widgets.NewLabel("Page: " + strconv.Itoa(num+1) + "/" + strconv.Itoa(len(msg.Raw.Page)-1)))
 				vbox.Add(widget.NewSeparator())
-				mu, err := widgets.NewMarkup(p.Data)
+				mu, err := widgets.NewMarkup(msg, p.Data)
 				if err != nil {
-					log.Printf("MarkUp err: %s", err.Error())
+					log.Printf("NewMarkup err: %s", err.Error())
 				}
 				vbox.Add(mu)
 			}
@@ -58,36 +52,6 @@ func (client UI) msgToCard(msg data.Message) *widget.Card {
 func shortIdent(i string) string {
 	if len(i) > 6 {
 		return "[" + i[0:6] + "]"
-	}
-	return ""
-}
-
-func renderImage(ext string, data []byte) (image.Image, error) {
-	var image image.Image
-	var err error
-	switch ext {
-	case "png":
-		image, err = png.Decode(bytes.NewReader(data))
-	case "jpeg":
-		image, err = jpeg.Decode(bytes.NewReader(data))
-	case "gif":
-		image, err = gif.Decode(bytes.NewReader(data))
-	default:
-		image, err = jpeg.Decode(bytes.NewReader(data))
-	}
-	return image, err
-}
-
-func imageExtFromName(s string) string {
-	if strings.Contains(s, "/") {
-		switch strings.Split(s, "/")[1] {
-		case "gif":
-			return "gif"
-		case "png":
-			return "png"
-		case "jpg", "jpeg":
-			return "jpeg"
-		}
 	}
 	return ""
 }

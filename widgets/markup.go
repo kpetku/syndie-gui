@@ -2,16 +2,25 @@ package widgets
 
 import (
 	"bytes"
+	"errors"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
+	"log"
 	"strings"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"github.com/kpetku/libsyndie/syndieutil"
+	"github.com/kpetku/syndie-core/data"
 	"golang.org/x/net/html"
 )
 
-func NewMarkup(s string) (*fyne.Container, error) {
+func NewMarkup(msg data.Message, s string) (*fyne.Container, error) {
 	var sb strings.Builder
 	vbox := container.NewVBox()
 	doc, err := html.Parse(strings.NewReader(s))
@@ -30,7 +39,12 @@ func NewMarkup(s string) (*fyne.Container, error) {
 				return
 			case "img":
 				sb.Reset()
-				vbox.Add(NewLabel("Image placeholder: " + renderNode(n)))
+				i, err := parseImg(msg, renderNode(n))
+				if err != nil {
+					log.Printf("parseImg error: %s", err)
+					return
+				}
+				vbox.Add(i)
 				return
 			case "br":
 				vbox.Add(layout.NewSpacer())
@@ -61,4 +75,58 @@ func renderNode(n *html.Node) string {
 	w := io.Writer(&buf)
 	html.Render(w, n)
 	return buf.String()
+}
+
+func parseImg(msg data.Message, s string) (*canvas.Image, error) {
+	var i *canvas.Image
+	tok := html.NewTokenizer(strings.NewReader(s))
+	for {
+		tokType := tok.Next()
+		if tokType == html.ErrorToken {
+			err := tok.Err()
+			if err == io.EOF {
+				break
+			}
+			return i, errors.New("error tokenizing html")
+		}
+		if tokType == html.SelfClosingTagToken {
+			u := tok.Token().Attr[0].Val
+			out := syndieutil.URI{}
+			out.Marshall(u)
+			if out.Channel == "" && out.Attachment > 0 {
+				size, ext, err := image.DecodeConfig(bytes.NewReader(msg.Raw.Attachment[out.Attachment-1].Data))
+				if err != nil {
+					log.Printf("Error rendering image: %s", err)
+					return &canvas.Image{}, err
+				}
+				raw, err := renderImage(ext, msg.Raw.Attachment[out.Attachment-1].Data)
+				if err != nil {
+					log.Printf("Error rendering image: %s", err)
+					return &canvas.Image{}, err
+				}
+				i = canvas.NewImageFromImage(raw)
+				i.FillMode = canvas.ImageFillOriginal
+				i.SetMinSize(fyne.NewSize(float32(size.Width), float32(size.Height)))
+				return i, nil
+			}
+			log.Printf("External image from attachment unimplemented: %s", u)
+		}
+	}
+	return i, nil
+}
+
+func renderImage(ext string, data []byte) (image.Image, error) {
+	var image image.Image
+	var err error
+	switch ext {
+	case "png":
+		image, err = png.Decode(bytes.NewReader(data))
+	case "jpeg", "jpg":
+		image, err = jpeg.Decode(bytes.NewReader(data))
+	case "gif":
+		image, err = gif.Decode(bytes.NewReader(data))
+	default:
+		image, err = jpeg.Decode(bytes.NewReader(data))
+	}
+	return image, err
 }
