@@ -21,7 +21,6 @@ type UI struct {
 
 	avatarCache map[string]*canvas.Image
 
-	pagination      int
 	selectedChannel string
 	channelNeedle   int
 	threadPane      *fyne.Container
@@ -41,7 +40,7 @@ func (client *UI) Start(path string) {
 	client.db.Open(path + "/db/bolt.db")
 	client.db.Reload()
 
-	client.app = app.New()
+	client.app = app.NewWithID("net.syndie.gui")
 	client.window = client.app.NewWindow("Syndie " + version)
 	client.applyOptions()
 	client.preloadAvatarCache()
@@ -80,7 +79,8 @@ func (client *UI) SetContent(o fyne.CanvasObject) {
 }
 
 func (client *UI) applyOptions() {
-	client.pagination = 25
+	client.app.Preferences().BoolWithFallback("hideEmptyFeeds", true)
+	client.app.Preferences().StringWithFallback("pagination", "25")
 }
 
 func sanityCheckStartupDir(path string) {

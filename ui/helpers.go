@@ -55,3 +55,11 @@ func shortIdent(i string) string {
 	}
 	return ""
 }
+
+func (client UI) pagination() int {
+	i, err := strconv.Atoi(client.app.Preferences().String("pagination"))
+	if err != nil {
+		i = 25
+	}
+	return i
+}

@@ -15,6 +15,10 @@ const noName = "Anonymous"
 func (client *UI) renderFeedView() fyne.CanvasObject {
 	content := container.New(layout.NewFormLayout())
 	for _, c := range client.db.Channels {
+		messages := client.db.ChanList[c.IdentHash]
+		if client.app.Preferences().Bool("hideEmptyFeeds") && len(messages) == 0 {
+			continue
+		}
 		var desc, name string
 		if c.Description == "" {
 			desc = noDescription

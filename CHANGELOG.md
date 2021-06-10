@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add latest message view
 - Add anonymous/non-anonymous fetch
 - Inline image support
+- Add Edit -> Settings menu
 
 ### Changed
 - Updated GUI toolkit to Fyne v2.0.3

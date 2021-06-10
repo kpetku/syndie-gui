@@ -5,7 +5,7 @@ import (
 )
 
 func (client *UI) renderMainMenu() *fyne.MainMenu {
-	main := fyne.NewMenu("File",
+	file := fyne.NewMenu("File",
 		fyne.NewMenuItem("Open file", func() {
 			client.fetchFromLocalFile()
 		}),
@@ -19,5 +19,10 @@ func (client *UI) renderMainMenu() *fyne.MainMenu {
 			client.fetchFromArchiveServer(false)
 		}),
 	)
-	return fyne.NewMainMenu(main)
+	edit := fyne.NewMenu("Edit",
+		fyne.NewMenuItem("Settings", func() {
+			client.renderSettingsView()
+		}),
+	)
+	return fyne.NewMainMenu(file, edit)
 }
