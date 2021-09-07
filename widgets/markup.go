@@ -58,6 +58,7 @@ func NewMarkup(msg data.Message, s string) (*fyne.Container, error) {
 				if html.UnescapeString(sb.String()) != "" {
 					vbox.Add(NewLabel(html.UnescapeString(sb.String())))
 				}
+				sb.Reset()
 			}
 		case html.DocumentNode:
 		default:
