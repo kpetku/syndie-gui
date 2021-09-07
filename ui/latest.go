@@ -16,16 +16,16 @@ func (client *UI) renderLatestView() fyne.CanvasObject {
 			continue
 		}
 		msg := messages[len(messages)-1]
-		chanCard := widget.NewCard("", client.db.NameFromChanIdentHash(msg.TargetChannel), nil)
+		left := container.NewVBox()
+		left.Add(widget.NewLabel(client.db.NameFromChanIdentHash(msg.TargetChannel)))
 		img := client.avatarCache[c.IdentHash]
 		img.SetMinSize(fyne.NewSize(64, 64))
-		img.FillMode = canvas.ImageFillStretch
-		chanCard.SetImage(img)
-		content.Add(chanCard)
-
-		card := client.msgToCard(msg)
-		content.Add(card)
+		img.FillMode = canvas.ImageFillContain
+		left.Add(img)
+		content.Add(left)
+		right := client.msgToCard(msg)
+		content.Add(right)
 	}
 	navBar := client.NewNavbar("latest")
-	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content))
+	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewScroll(content))
 }
