@@ -106,7 +106,7 @@ func parseImg(msg data.Message, s string) (*canvas.Image, error) {
 					return &canvas.Image{}, err
 				}
 				i = canvas.NewImageFromImage(raw)
-				i.FillMode = canvas.ImageFillOriginal
+				i.FillMode = canvas.ImageFillContain
 				i.SetMinSize(fyne.NewSize(float32(size.Width), float32(size.Height)))
 				return i, nil
 			}
