@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"sort"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -16,6 +18,8 @@ func (client *UI) renderFeedView() fyne.CanvasObject {
 	content := container.New(layout.NewFormLayout())
 	for _, c := range client.db.Channels {
 		messages := client.db.ChanList[c.IdentHash]
+		// We don't use timestamps, therefore we must sort messages from largest to smallest MessageID because that is the closest strategy for ordering
+		sort.Slice(messages, func(i, j int) bool { return messages[i].ID > messages[j].ID })
 		if client.app.Preferences().Bool("hideEmptyFeeds") && len(messages) == 0 {
 			continue
 		}

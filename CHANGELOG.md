@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change the message view to a more modern card layout
 - Cache avatars in memory
 - Major UI rework
+- Display messages in the feeds directory in reverse chronological order
 
 ## [0.0.2] - 2020-07-31
 ### Added
