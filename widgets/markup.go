@@ -55,7 +55,7 @@ func NewMarkup(msg data.Message, s string) (*fyne.Container, error) {
 		case html.TextNode:
 			if renderNode(n) != "" || sb.Len() > 0 {
 				sb.WriteString(renderNode(n))
-				if html.UnescapeString(sb.String()) != "" {
+				if strings.TrimSpace(html.UnescapeString(sb.String())) != "" {
 					vbox.Add(NewLabel(html.UnescapeString(sb.String())))
 				}
 				sb.Reset()
