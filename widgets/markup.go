@@ -91,26 +91,31 @@ func parseImg(msg data.Message, s string) (*canvas.Image, error) {
 			return i, errors.New("error tokenizing html")
 		}
 		if tokType == html.SelfClosingTagToken {
-			u := tok.Token().Attr[0].Val
-			out := syndieutil.URI{}
-			out.Marshall(u)
-			if out.Channel == "" && out.Attachment > 0 {
-				size, ext, err := image.DecodeConfig(bytes.NewReader(msg.Raw.Attachment[out.Attachment-1].Data))
-				if err != nil {
-					log.Printf("Error rendering image: %s", err)
-					return &canvas.Image{}, err
+			for _, attr := range tok.Token().Attr {
+				switch attr.Key {
+				case "src":
+					u := attr.Val
+					out := syndieutil.URI{}
+					out.Marshall(u)
+					if out.Channel == "" && out.Attachment > 0 {
+						size, ext, err := image.DecodeConfig(bytes.NewReader(msg.Raw.Attachment[out.Attachment-1].Data))
+						if err != nil {
+							log.Printf("Error rendering image: %s", err)
+							return &canvas.Image{}, err
+						}
+						raw, err := renderImage(ext, msg.Raw.Attachment[out.Attachment-1].Data)
+						if err != nil {
+							log.Printf("Error rendering image: %s", err)
+							return &canvas.Image{}, err
+						}
+						i = canvas.NewImageFromImage(raw)
+						i.FillMode = canvas.ImageFillContain
+						i.SetMinSize(fyne.NewSize(float32(size.Width), float32(size.Height)))
+						return i, nil
+					}
 				}
-				raw, err := renderImage(ext, msg.Raw.Attachment[out.Attachment-1].Data)
-				if err != nil {
-					log.Printf("Error rendering image: %s", err)
-					return &canvas.Image{}, err
-				}
-				i = canvas.NewImageFromImage(raw)
-				i.FillMode = canvas.ImageFillContain
-				i.SetMinSize(fyne.NewSize(float32(size.Width), float32(size.Height)))
-				return i, nil
 			}
-			log.Printf("External image from attachment unimplemented: %s", u)
+			log.Println("External image from attachment unimplemented..")
 			return &canvas.Image{}, nil
 		}
 	}
