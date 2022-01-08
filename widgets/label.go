@@ -5,8 +5,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func NewLabel(s string) *widget.Label {
-	w := widget.NewLabel(s)
+func NewLabel(s string) *widget.RichText {
+	w := widget.NewRichTextWithText(s)
 	w.Wrapping = fyne.TextWrapBreak
 	return w
 }
