@@ -111,6 +111,7 @@ func parseImg(msg data.Message, s string) (*canvas.Image, error) {
 				return i, nil
 			}
 			log.Printf("External image from attachment unimplemented: %s", u)
+			return &canvas.Image{}, nil
 		}
 	}
 	return i, nil
