@@ -6,7 +6,7 @@ import (
 	"github.com/kpetku/syndie-core/data"
 )
 
-type tappableCard struct {
+type TappableCard struct {
 	widget.Card
 	msg             *data.Message
 	ChanID          string
@@ -14,8 +14,8 @@ type tappableCard struct {
 	SelectedChannel chan string
 }
 
-func NewTappableCard(title, subtitle string, content fyne.CanvasObject) *tappableCard {
-	card := &tappableCard{}
+func NewTappableCard(title, subtitle string, content fyne.CanvasObject) *TappableCard {
+	card := &TappableCard{}
 	card.ExtendBaseWidget(card)
 	card.SetTitle(title)
 	card.SetSubTitle(subtitle)
@@ -23,7 +23,7 @@ func NewTappableCard(title, subtitle string, content fyne.CanvasObject) *tappabl
 	return card
 }
 
-func (t *tappableCard) Tapped(_ *fyne.PointEvent) {
+func (t *TappableCard) Tapped(_ *fyne.PointEvent) {
 	if t.SelectedMessage != nil {
 		t.SelectedMessage <- t.msg.ID
 		close(t.SelectedMessage)
@@ -34,5 +34,5 @@ func (t *tappableCard) Tapped(_ *fyne.PointEvent) {
 	}
 }
 
-func (t *tappableCard) TappedSecondary(_ *fyne.PointEvent) {
+func (t *TappableCard) TappedSecondary(_ *fyne.PointEvent) {
 }

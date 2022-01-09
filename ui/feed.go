@@ -15,7 +15,23 @@ const noDescription = "No description"
 const noName = "Anonymous"
 
 func (client *UI) renderFeedView() fyne.CanvasObject {
-	content := container.New(layout.NewFormLayout())
+	data := []*widgets.TappableCard{}
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return widgets.NewTappableCard("template", "template", widget.NewLabel("template"))
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widgets.TappableCard).ChanID = data[i].ChanID
+			o.(*widgets.TappableCard).SetTitle(data[i].Title)
+			o.(*widgets.TappableCard).SetSubTitle(data[i].Subtitle)
+			o.(*widgets.TappableCard).SetContent(data[i].Content)
+			o.(*widgets.TappableCard).SelectedChannel = data[i].SelectedChannel
+			o.(*widgets.TappableCard).SelectedMessage = data[i].SelectedMessage
+		})
+
 	for _, c := range client.db.Channels {
 		messages := client.db.ChanList[c.IdentHash]
 		// We don't use timestamps, therefore we must sort messages from largest to smallest MessageID because that is the closest strategy for ordering
@@ -34,12 +50,14 @@ func (client *UI) renderFeedView() fyne.CanvasObject {
 		} else {
 			name = c.Name
 		}
+		hbox := container.New(layout.NewFormLayout())
 		img := client.avatarCache[c.IdentHash]
-		img.SetMinSize(fyne.NewSize(64, 64))
+		img.SetMinSize(fyne.NewSize(32, 32))
 		img.FillMode = canvas.ImageFillContain
-		content.Add(img)
+		hbox.Add(img)
 
-		card := widgets.NewTappableCard(name, c.IdentHash, widget.NewLabel(desc))
+		card := widgets.NewTappableCard(name, shortIdent(c.IdentHash), hbox)
+		hbox.Add(widgets.NewLabel(desc))
 		card.ChanID = c.IdentHash
 		card.SelectedChannel = make(chan string)
 		go func() {
@@ -50,8 +68,8 @@ func (client *UI) renderFeedView() fyne.CanvasObject {
 			}
 			go client.repaintMainWindow()
 		}()
-		content.Add(card)
+		data = append(data, card)
 	}
 	navBar := client.NewNavbar("feed")
-	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, container.NewVScroll(content))
+	return container.New(layout.NewBorderLayout(navBar, nil, nil, nil), navBar, list)
 }
