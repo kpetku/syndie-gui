@@ -24,15 +24,17 @@ func newCenteredContainer(l *fyne.Container) *fyne.Container {
 
 func (client UI) msgToCard(msg data.Message) *widget.Card {
 	date := time.Unix(0, int64(msg.ID)*int64(time.Millisecond))
-	text := "by " + client.db.NameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")
+	hbox := container.New(layout.NewFormLayout())
 	vbox := container.NewVBox()
-
-	avatar := client.avatarCache[msg.Author]
-	if avatar == nil {
-		avatar = &canvas.Image{}
+	authorAvatar := client.avatarCache[msg.Author]
+	if authorAvatar == nil {
+		authorAvatar = &canvas.Image{}
 	}
-	avatar.SetMinSize(fyne.NewSize(32, 32))
-	vbox.Add(container.New(layout.NewFormLayout(), avatar, widgets.NewLabel(text)))
+	authorAvatar.SetMinSize(fyne.NewSize(32, 32))
+	authorAvatar.FillMode = canvas.ImageFillOriginal
+	hbox.Add(authorAvatar)
+	hbox.Add(widget.NewLabel("by " + client.db.NameFromChanIdentHash(msg.Author) + " " + shortIdent(msg.Author) + " on " + date.Format("2006-01-02")))
+	vbox.Add(hbox)
 	if len(msg.Raw.Page) > 0 {
 		for num, p := range msg.Raw.Page[:1] {
 			if num >= 0 {
@@ -46,7 +48,7 @@ func (client UI) msgToCard(msg data.Message) *widget.Card {
 			}
 		}
 	}
-	return widget.NewCard(msg.Subject, "", vbox)
+	return widget.NewCard(msg.Subject, "posted to "+client.db.NameFromChanIdentHash(msg.TargetChannel)+" "+shortIdent(msg.TargetChannel), vbox)
 }
 
 func shortIdent(i string) string {
