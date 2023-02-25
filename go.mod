@@ -7,7 +7,7 @@ require (
 	github.com/kpetku/libsyndie v1.0.1
 	github.com/kpetku/syndie-core v1.0.2
 	go.etcd.io/bbolt v1.3.6
-	golang.org/x/net v0.0.0-20220812174116-3211cb980234
+	golang.org/x/net v0.7.0
 )
 
 require (
@@ -40,8 +40,8 @@ require (
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539 // indirect
 	golang.org/x/mobile v0.0.0-20220722155234-aaac322e2105 // indirect
-	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/js/dom v0.0.0-20210725211120-f030747120f2 // indirect
 )
